@@ -19,6 +19,8 @@ type VoidCallback = (result: boolean) => void;
 const BLE_DEVICE_UUID = '0000FFE0-0000-1000-8000-00805F9B34FB';
 const BLE_DEVICE_CHARACTERISTIC = '0000FFE1-0000-1000-8000-00805F9B34FB';
 
+type ItemData = { id: string, title: string };
+
 interface BluetoothLowEnergyApi {
     requestPermissions(callback: VoidCallback): Promise<void>;
     connectToDevice: (deviceId: Device) => Promise<void>;
@@ -28,6 +30,7 @@ interface BluetoothLowEnergyApi {
     allDevices: Device[];
     referenceNumber: Number;
     referenceStr: String;
+    referenceList: ItemData[];
 }
 
 function useBLE(): BluetoothLowEnergyApi {
@@ -35,6 +38,7 @@ function useBLE(): BluetoothLowEnergyApi {
     const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
     const [referenceNumber, setReferenceNumber] = useState<number>(0);
     const [referenceStr, setReferenceStr] = useState<String>("");
+    const [referenceList, setReferenceList] = useState<ItemData[]>([]);
 
     const requestPermissions = async (cb: VoidCallback) => {
         if (Platform.OS === 'android') {
@@ -76,6 +80,9 @@ function useBLE(): BluetoothLowEnergyApi {
 
     const isDuplicateDevice = (devices: Device[], nextDevice: Device) =>
         devices.findIndex(device => nextDevice.id === device.id) > -1;
+
+    const isDuplicateReference = (references: ItemData[], nextReference: ItemData) =>
+        references.findIndex(reference => nextReference.id === reference.id) > -1;
 
     const scanForPeripherals = () =>
         bleManager.startDeviceScan(null, null, (error, device) => {
@@ -141,8 +148,14 @@ function useBLE(): BluetoothLowEnergyApi {
         const rawData = atob(characteristic.value);
         let referenceNumber: number = -1;
 
-        const firstBitValue: number = Number(rawData) & 0x01;
+        let newItem: ItemData = { id: rawData, title: rawData };
 
+        setReferenceList((prevState: ItemData[]) => {
+            if (!isDuplicateReference(prevState, newItem)) {
+                return [...prevState, newItem];
+            }
+            return prevState;
+        });
 
 
         // if (firstBitValue === 0) {
@@ -157,7 +170,7 @@ function useBLE(): BluetoothLowEnergyApi {
         setReferenceStr(rawData);
     };
 
-    const onreferenceNumberUpdate = (
+    const onReferenceNumberUpdate = (
         error: BleError | null,
         characteristic: Characteristic | null,
     ) => {
@@ -194,6 +207,7 @@ function useBLE(): BluetoothLowEnergyApi {
         connectedDevice,
         referenceNumber,
         referenceStr,
+        referenceList
     };
 }
 

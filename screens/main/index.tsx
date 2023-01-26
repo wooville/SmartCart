@@ -1,7 +1,7 @@
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
-import {StackNavigationProp} from '@react-navigation/stack';
-import {RootStackParamList} from '../RootStackParams';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '../RootStackParams';
 import {
   FlatList,
   SafeAreaView,
@@ -32,9 +32,9 @@ const DATA = [
   },
 ];
 
-type ItemProps = {title: string};
+type ItemProps = { title: string };
 
-const Item = ({title}: ItemProps) => (
+const Item = ({ title }: ItemProps) => (
   <View style={styles.item}>
     <Text style={styles.title}>{title}</Text>
   </View>
@@ -51,6 +51,7 @@ function MainScreen() {
     connectedDevice,
     referenceNumber,
     referenceStr,
+    referenceList,
   } = useBLE();
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
@@ -100,12 +101,12 @@ function MainScreen() {
         devices={allDevices}
       />
       <View style={styles.container}>
-      <FlatList
-        data={DATA}
-        renderItem={({item}) => <Item title={item.title} />}
-        keyExtractor={item => item.id}
-      />
-    </View>
+        <FlatList
+          data={referenceList}
+          renderItem={({ item }) => <Item title={item.title} />}
+          keyExtractor={item => item.id}
+        />
+      </View>
     </SafeAreaView>
 
     // <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
