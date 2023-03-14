@@ -15,6 +15,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import MainScreen from './screens/main';
 import AuthScreen from './screens/auth';
+import TestScreen from './screens/test';
+
 import { RootStackParamList } from './screens/RootStackParams';
 
 
@@ -28,8 +30,6 @@ const App = () => {
     disconnectFromDevice,
     allDevices,
     connectedDevice,
-    referenceNumber,
-    referenceStr,
   } = useBLE();
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 

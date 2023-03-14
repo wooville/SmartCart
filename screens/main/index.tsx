@@ -11,26 +11,12 @@ import {
   View,
 } from 'react-native';
 import DeviceModal from '../../DeviceConnectionModal';
-// import PulseIndicator from './PulseIndicator';
 import useBLE from '../../useBLE';
 // import ListViewRenderPropGeneric from '../../ListViewRenderPropGeneric';
 
-type mainScreenProp = StackNavigationProp<RootStackParamList, 'Main'>;
+const API_URL = 'http://smartcartbeanstalk-env.eba-3jmpa3xe.us-east-2.elasticbeanstalk.com/auth';
 
-const DATA = [
-  {
-    id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-    title: 'First Item',
-  },
-  {
-    id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-    title: 'Second Item',
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571e29d72',
-    title: 'Third Item',
-  },
-];
+type mainScreenProp = StackNavigationProp<RootStackParamList, 'Main'>;
 
 type ItemProps = { title: string };
 
@@ -49,9 +35,7 @@ function MainScreen() {
     disconnectFromDevice,
     allDevices,
     connectedDevice,
-    referenceNumber,
-    referenceStr,
-    referenceList,
+    productList,
   } = useBLE();
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
@@ -78,8 +62,7 @@ function MainScreen() {
         {connectedDevice ? (
           <>
             <Text style={styles.BLEDeviceTitleText}>Connected Device Info</Text>
-            <Text style={styles.BLEDeviceText}>{connectedDevice.name} , {referenceNumber.toString()}</Text>
-            <Text style={styles.BLEDeviceText}>TEST {referenceStr}</Text>
+            <Text style={styles.BLEDeviceText}>{connectedDevice.name}</Text>
           </>
         ) : (
           <Text style={styles.BLEDeviceTitleText}>
@@ -102,7 +85,7 @@ function MainScreen() {
       />
       <View style={styles.container}>
         <FlatList
-          data={referenceList}
+          data={productList}
           renderItem={({ item }) => <Item title={item.title} />}
           keyExtractor={item => item.id}
         />

@@ -12,12 +12,21 @@ import DeviceInfo from 'react-native-device-info';
 
 import { atob } from 'react-native-quick-base64';
 
+const API_URL = 'http://smartcartbeanstalk-env.eba-3jmpa3xe.us-east-2.elasticbeanstalk.com/prod';
+
 const bleManager = new BleManager();
 
 type VoidCallback = (result: boolean) => void;
 
 const BLE_DEVICE_UUID = '0000FFE0-0000-1000-8000-00805F9B34FB';
 const BLE_DEVICE_CHARACTERISTIC = '0000FFE1-0000-1000-8000-00805F9B34FB';
+
+interface ProductData {
+    id: string
+    name: string
+    price: number
+    aisle: string
+};
 
 type ItemData = { id: string, title: string };
 
@@ -28,17 +37,14 @@ interface BluetoothLowEnergyApi {
     connectedDevice: Device | null;
     scanForPeripherals(): void;
     allDevices: Device[];
-    referenceNumber: Number;
-    referenceStr: String;
-    referenceList: ItemData[];
+    productList: ItemData[];
 }
 
 function useBLE(): BluetoothLowEnergyApi {
     const [allDevices, setAllDevices] = useState<Device[]>([]);
     const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
-    const [referenceNumber, setReferenceNumber] = useState<number>(0);
-    const [referenceStr, setReferenceStr] = useState<String>("");
-    const [referenceList, setReferenceList] = useState<ItemData[]>([]);
+
+    const [productList, setProductList] = useState<ItemData[]>([]);
 
     const requestPermissions = async (cb: VoidCallback) => {
         if (Platform.OS === 'android') {
@@ -81,9 +87,6 @@ function useBLE(): BluetoothLowEnergyApi {
     const isDuplicateDevice = (devices: Device[], nextDevice: Device) =>
         devices.findIndex(device => nextDevice.id === device.id) > -1;
 
-    const isDuplicateReference = (references: ItemData[], nextReference: ItemData) =>
-        references.findIndex(reference => nextReference.id === reference.id) > -1;
-
     const scanForPeripherals = () =>
         bleManager.startDeviceScan(null, null, (error, device) => {
             if (error) {
@@ -115,8 +118,7 @@ function useBLE(): BluetoothLowEnergyApi {
         if (connectedDevice) {
             bleManager.cancelDeviceConnection(connectedDevice.id);
             setConnectedDevice(null);
-            setReferenceNumber(0);
-            setReferenceStr("");
+            setProductList([]);
         }
     };
 
@@ -132,6 +134,29 @@ function useBLE(): BluetoothLowEnergyApi {
         }
     };
 
+    const getProduct = (refid: any) => {
+        fetch(`${API_URL}/${refid}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+            .then(async res => {
+                try {
+                    const jsonRes = await res.json();
+                    if (res.status === 200) {
+                        console.log(JSON.stringify(jsonRes));
+                        return jsonRes
+                    }
+                } catch (err) {
+                    console.log(err);
+                };
+            })
+            .catch(err => {
+                console.log(err);
+            });
+        return ""   // bandaid to always return string
+    }
 
     const onBLEUpdate = (
         error: BleError | null,
@@ -145,58 +170,25 @@ function useBLE(): BluetoothLowEnergyApi {
             return -1;
         }
 
-        const rawData = atob(characteristic.value);
-        let referenceNumber: number = -1;
+        const uid = atob(characteristic.value).substring(0, 14);                  // first half of recvd value
+        const refId = parseInt(atob(characteristic.value).substring(15, 16), 16);     // last half of received value (from hex to int)
 
-        let newItem: ItemData = { id: rawData, title: rawData };
+        console.log(uid + "\n");
 
-        setReferenceList((prevState: ItemData[]) => {
-            if (!isDuplicateReference(prevState, newItem)) {
-                return [...prevState, newItem];
-            }
-            return prevState;
-        });
+        // let productResponseData = getProduct(refId);
+        // let productData = JSON.parse(productResponseData);
 
+        // let newItem: ItemData = { id: productData.id, title: productData.name };
 
-        // if (firstBitValue === 0) {
-        //     referenceNumber = rawData[1].charCodeAt(0);
-        // } else {
-        //     referenceNumber =
-        //         Number(rawData[1].charCodeAt(0) << 8) +
-        //         Number(rawData[2].charCodeAt(2));
-        // }
-
-        setReferenceNumber(referenceNumber);
-        setReferenceStr(rawData);
+        // setProductList((prevState: ItemData[]) => {
+        //     if (!isDuplicateReference(prevState, newItem)) {
+        //         return [...prevState, newItem];
+        //     }
+        //     return prevState;
+        // });
     };
 
-    const onReferenceNumberUpdate = (
-        error: BleError | null,
-        characteristic: Characteristic | null,
-    ) => {
-        if (error) {
-            console.log(error);
-            return -1;
-        } else if (!characteristic?.value) {
-            console.log('No Data was recieved');
-            return -1;
-        }
 
-        const rawData = atob(characteristic.value);
-        let innerreferenceNumber: number = -1;
-
-        const firstBitValue: number = Number(rawData) & 0x01;
-
-        if (firstBitValue === 0) {
-            innerreferenceNumber = rawData[1].charCodeAt(0);
-        } else {
-            innerreferenceNumber =
-                Number(rawData[1].charCodeAt(0) << 8) +
-                Number(rawData[2].charCodeAt(2));
-        }
-
-        setReferenceNumber(innerreferenceNumber);
-    };
 
     return {
         requestPermissions,
@@ -205,9 +197,7 @@ function useBLE(): BluetoothLowEnergyApi {
         disconnectFromDevice,
         allDevices,
         connectedDevice,
-        referenceNumber,
-        referenceStr,
-        referenceList
+        productList
     };
 }
 
