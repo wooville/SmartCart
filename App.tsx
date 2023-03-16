@@ -16,6 +16,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import MainScreen from './screens/main';
 import AuthScreen from './screens/auth';
 import { RootStackParamList } from './screens/RootStackParams';
+import { Provider as PaperProvider, TextInput } from 'react-native-paper';
 
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -51,12 +52,20 @@ const App = () => {
   };
 
   return (
+    <PaperProvider>
+
+
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="Auth" component={AuthScreen} />
+        <Stack.Screen name="SmartCart" component={AuthScreen} />
         <Stack.Screen name="Main" component={MainScreen} />
+        <Stack.Screen name="Signup" component={MainScreen} />
+
       </Stack.Navigator>
     </NavigationContainer>
+    </PaperProvider>
+
+
 
     // <SafeAreaView style={styles.container}>
     //   <View style={styles.BLEDeviceTitleWrapper}>
