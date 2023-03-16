@@ -82,7 +82,7 @@ function MainScreen() {
           </>
         ) : (
           <Text style={styles.BLEDeviceTitleText}>
-            Please Connect to a BLE Device
+            Cart Items:
           </Text>
         )}
       </View>
