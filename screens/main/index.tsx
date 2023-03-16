@@ -50,7 +50,6 @@ function MainScreen() {
     allDevices,
     connectedDevice,
     productList,
-    cartTotal,
   } = useBLE();
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 

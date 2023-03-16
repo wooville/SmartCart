@@ -40,7 +40,6 @@ interface BluetoothLowEnergyApi {
     scanForPeripherals(): void;
     allDevices: Device[];
     productList: ItemData[];
-    cartTotal: number;
 }
 
 const ProductListContext = createContext({});
@@ -50,7 +49,6 @@ function useBLE(): BluetoothLowEnergyApi {
     const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
 
     const [productList, setProductList] = useState<ItemData[]>([]);
-    const [cartTotal, setCartTotal] = useState(0);
     // const [newProduct, setNewProduct] = useState<ProductData | null>(null);
 
     const requestPermissions = async (cb: VoidCallback) => {
@@ -169,8 +167,6 @@ function useBLE(): BluetoothLowEnergyApi {
                                 }
                                 return prevState;
                             });
-
-                            setCartTotal(cartTotal + newProduct.price);
                         }
                     }
                 } catch (err) {
@@ -212,7 +208,6 @@ function useBLE(): BluetoothLowEnergyApi {
         allDevices,
         connectedDevice,
         productList,
-        cartTotal
     };
 }
 
