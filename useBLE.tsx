@@ -1,5 +1,5 @@
 /* eslint-disable no-bitwise */
-import { useState } from 'react';
+import { createContext, useContext, useState } from 'react';
 import { PermissionsAndroid, Platform } from 'react-native';
 import {
     BleError,
@@ -22,13 +22,15 @@ const BLE_DEVICE_UUID = '0000FFE0-0000-1000-8000-00805F9B34FB';
 const BLE_DEVICE_CHARACTERISTIC = '0000FFE1-0000-1000-8000-00805F9B34FB';
 
 interface ProductData {
-    id: string
+    id: number
     name: string
     price: number
     aisle: string
+    createdAt: string
+    updatedAt: string
 };
 
-type ItemData = { id: string, title: string };
+type ItemData = { id: string, name: string, price: string, aisle: string };
 
 interface BluetoothLowEnergyApi {
     requestPermissions(callback: VoidCallback): Promise<void>;
@@ -38,13 +40,18 @@ interface BluetoothLowEnergyApi {
     scanForPeripherals(): void;
     allDevices: Device[];
     productList: ItemData[];
+    cartTotal: number;
 }
+
+const ProductListContext = createContext({});
 
 function useBLE(): BluetoothLowEnergyApi {
     const [allDevices, setAllDevices] = useState<Device[]>([]);
     const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
 
     const [productList, setProductList] = useState<ItemData[]>([]);
+    const [cartTotal, setCartTotal] = useState(0);
+    // const [newProduct, setNewProduct] = useState<ProductData | null>(null);
 
     const requestPermissions = async (cb: VoidCallback) => {
         if (Platform.OS === 'android') {
@@ -86,6 +93,9 @@ function useBLE(): BluetoothLowEnergyApi {
 
     const isDuplicateDevice = (devices: Device[], nextDevice: Device) =>
         devices.findIndex(device => nextDevice.id === device.id) > -1;
+
+    const isDuplicateItem = (items: ItemData[], nextItem: ItemData) =>
+        items.findIndex(item => nextItem.id === item.id) > -1;
 
     const scanForPeripherals = () =>
         bleManager.startDeviceScan(null, null, (error, device) => {
@@ -134,7 +144,7 @@ function useBLE(): BluetoothLowEnergyApi {
         }
     };
 
-    const getProduct = (refid: any) => {
+    const getProduct = (refid: any, uid: any) => {
         fetch(`${API_URL}/${refid}`, {
             method: 'GET',
             headers: {
@@ -145,8 +155,23 @@ function useBLE(): BluetoothLowEnergyApi {
                 try {
                     const jsonRes = await res.json();
                     if (res.status === 200) {
-                        console.log(JSON.stringify(jsonRes));
-                        return jsonRes
+                        let newProduct: ProductData = await JSON.parse(JSON.stringify(jsonRes.data));
+                        // console.log(product);
+
+                        // if uid is not already in list and there is a new product / server response
+                        if (!productList.some(e => e.id === uid) && newProduct != null) {
+                            let newItem: ItemData = { id: uid, name: newProduct.name, price: newProduct.price.toString(), aisle: newProduct.aisle };
+                            // setNewProduct(null);
+
+                            setProductList((prevState: ItemData[]) => {
+                                if (!isDuplicateItem(prevState, newItem)) {
+                                    return [...prevState, newItem];
+                                }
+                                return prevState;
+                            });
+
+                            setCartTotal(cartTotal + newProduct.price);
+                        }
                     }
                 } catch (err) {
                     console.log(err);
@@ -155,7 +180,6 @@ function useBLE(): BluetoothLowEnergyApi {
             .catch(err => {
                 console.log(err);
             });
-        return ""   // bandaid to always return string
     }
 
     const onBLEUpdate = (
@@ -170,22 +194,12 @@ function useBLE(): BluetoothLowEnergyApi {
             return -1;
         }
 
-        const uid = atob(characteristic.value).substring(0, 14);                  // first half of recvd value
-        const refId = parseInt(atob(characteristic.value).substring(15, 16), 16);     // last half of received value (from hex to int)
+        const uid = atob(characteristic.value).substring(0, 12);                  // first half of recvd value
+        const refId = parseInt(atob(characteristic.value).substring(14, 16), 16);     // last half of received value (from hex to int)
 
-        console.log(uid + "\n");
+        console.log(uid + "\n" + refId);
 
-        // let productResponseData = getProduct(refId);
-        // let productData = JSON.parse(productResponseData);
-
-        // let newItem: ItemData = { id: productData.id, title: productData.name };
-
-        // setProductList((prevState: ItemData[]) => {
-        //     if (!isDuplicateReference(prevState, newItem)) {
-        //         return [...prevState, newItem];
-        //     }
-        //     return prevState;
-        // });
+        getProduct(refId, uid);
     };
 
 
@@ -197,7 +211,8 @@ function useBLE(): BluetoothLowEnergyApi {
         disconnectFromDevice,
         allDevices,
         connectedDevice,
-        productList
+        productList,
+        cartTotal
     };
 }
 
