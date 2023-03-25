@@ -12,7 +12,7 @@ import DeviceInfo from 'react-native-device-info';
 
 import { atob } from 'react-native-quick-base64';
 
-const API_URL = 'http://smartcartbeanstalk-env.eba-3jmpa3xe.us-east-2.elasticbeanstalk.com/prod';
+const API_URL = 'http://smartcartbeanstalk-env.eba-3jmpa3xe.us-east-2.elasticbeanstalk.com/product';
 
 const bleManager = new BleManager();
 
