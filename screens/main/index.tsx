@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../RootStackParams';
 import {
@@ -11,10 +11,13 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Modal } from 'react-native';
 import DeviceModal from '../../DeviceConnectionModal';
 import useBLE from '../../useBLE';
 import { SwipeListView } from 'react-native-swipe-list-view';
 // import ListViewRenderPropGeneric from '../../ListViewRenderPropGeneric';
+import { ItemData } from '../../useBLE';
+import { productContext } from '../../utils/ProductListProvider';
 
 const API_URL = 'http://smartcartbeanstalk-env.eba-3jmpa3xe.us-east-2.elasticbeanstalk.com/auth';
 
@@ -49,11 +52,15 @@ function MainScreen() {
     disconnectFromDevice,
     allDevices,
     connectedDevice,
-    productList,
+    // productList,
   } = useBLE();
-  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const productListInterface = useContext(productContext);
+  const [isDeviceModalVisible, setIsDeviceModalVisible] = useState<boolean>(false);
+  const [isProductRemoveModalVisible, setIsProductRemoveModalVisible] = useState<boolean>(false);
+  const [removeList, setProductList] = useState<ItemData[]>([]);
 
-  const sumTotal = productList.reduce((acc, next) => {
+
+  const sumTotal = productListInterface.productList.reduce((acc, next) => {
     return acc + parseFloat(next.price)
   }, 0)
 
@@ -65,14 +72,23 @@ function MainScreen() {
     });
   };
 
-  const hideModal = () => {
-    setIsModalVisible(false);
+  const hideDeviceModal = () => {
+    setIsDeviceModalVisible(false);
   };
 
-  const openModal = async () => {
+  const openDeviceModal = async () => {
     scanForDevices();
-    setIsModalVisible(true);
+    setIsDeviceModalVisible(true);
   };
+
+  const openProductRemoveModal = () => {
+    waitForProductRemove();
+    setIsProductRemoveModalVisible(true);
+  };
+
+  const waitForProductRemove = () => {
+
+  }
 
   // const swipeListRender = () => {
   //   const Component = SwipeToDelete;
@@ -94,26 +110,47 @@ function MainScreen() {
         )}
       </View> */}
       <TouchableOpacity
-        onPress={connectedDevice ? disconnectFromDevice : openModal}
+        onPress={connectedDevice ? disconnectFromDevice : openDeviceModal}
         style={styles.ctaButton}>
         <Text style={styles.ctaButtonText}>
           {connectedDevice ? 'Disconnect' : 'Connect'}
         </Text>
       </TouchableOpacity>
       <DeviceModal
-        closeModal={hideModal}
-        visible={isModalVisible}
+        closeModal={hideDeviceModal}
+        visible={isDeviceModalVisible}
         connectToPeripheral={connectToDevice}
         devices={allDevices}
       />
+      <Modal animationType={"slide"}
+        // transparent={true}
+        visible={isProductRemoveModalVisible}
+        onRequestClose={() => { setIsProductRemoveModalVisible(false); }}>
+        <View style={styles.BLEDeviceTitleWrapper}>
+          <Text style={styles.BLEDeviceTitleText}>{"Please scan the items you wish to remove:"}</Text>
+          <FlatList
+            data={removeList}
+            renderItem={({ item }) => <Item name={item.name} price={item.price} aisle={item.aisle} />}
+            keyExtractor={item => item.id}
+          />
+        </View>
+      </Modal>
       <View style={styles.container}>
         <FlatList
-          data={productList}
+          data={productListInterface.productList}
           renderItem={({ item }) => <Item name={item.name} price={item.price} aisle={item.aisle} />}
           keyExtractor={item => item.id}
         />
         {/* {swipeListRender()} */}
       </View>
+      <TouchableOpacity
+        onPress={openProductRemoveModal}
+        style={styles.ctaButton}
+      >
+        <Text style={styles.ctaButtonText}>
+          {'Remove Product'}
+        </Text>
+      </TouchableOpacity>
       <View
         style={styles.ctaButton}>
         <Text style={styles.ctaButtonText}>
@@ -123,7 +160,7 @@ function MainScreen() {
       {/* <Text style={styles.ctaButtonText}>
         {'Cart Total: ' + cartTotal}
       </Text> */}
-    </SafeAreaView>
+    </SafeAreaView >
 
     // <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
     //   <Text>Main Screen</Text>
@@ -185,7 +222,7 @@ const styles = StyleSheet.create({
   },
   BLEDeviceTitleWrapper: {
     flex: 1,
-    justifyContent: 'center',
+    // justifyContent: 'center',
     alignItems: 'center',
   },
   BLEDeviceTitleText: {
@@ -212,6 +249,15 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: 'white',
+  },
+  removeProductButton: {
+    backgroundColor: '#54589A',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 50,
+    marginHorizontal: 20,
+    marginBottom: 5,
+    borderRadius: 8,
   },
   cartTotalButton: {
     backgroundColor: '#54589A',
