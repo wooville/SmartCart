@@ -9,10 +9,12 @@ import {
 } from 'react-native-ble-plx';
 import { PERMISSIONS, requestMultiple } from 'react-native-permissions';
 import DeviceInfo from 'react-native-device-info';
+// import { productContext, ProductListProvider } from './utils/ProductListProvider';
+import { ProductListContext } from './utils/ProductListProvider';
 
 import { atob } from 'react-native-quick-base64';
 
-const API_URL = 'http://smartcartbeanstalk-env.eba-3jmpa3xe.us-east-2.elasticbeanstalk.com/prod';
+const API_URL = 'http://smartcartbeanstalk-env.eba-3jmpa3xe.us-east-2.elasticbeanstalk.com/product';
 
 const bleManager = new BleManager();
 
@@ -26,11 +28,13 @@ interface ProductData {
     name: string
     price: number
     aisle: string
+    tags: string
+    imgurl: string
     createdAt: string
     updatedAt: string
 };
 
-type ItemData = { id: string, name: string, price: string, aisle: string };
+export type ItemData = { id: string, name: string, price: string, aisle: string };
 
 interface BluetoothLowEnergyApi {
     requestPermissions(callback: VoidCallback): Promise<void>;
@@ -39,16 +43,19 @@ interface BluetoothLowEnergyApi {
     connectedDevice: Device | null;
     scanForPeripherals(): void;
     allDevices: Device[];
-    productList: ItemData[];
+    // productList: ItemData[];
 }
 
-const ProductListContext = createContext({});
+// export const productList = useContext(productContext);
 
 function useBLE(): BluetoothLowEnergyApi {
+    // const productListInterface = useContext(productContext);
+    const productList = useContext(ProductListContext);
+
     const [allDevices, setAllDevices] = useState<Device[]>([]);
     const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
 
-    const [productList, setProductList] = useState<ItemData[]>([]);
+    // const [productList, setProductList] = useState<ItemData[]>([]);
     // const [newProduct, setNewProduct] = useState<ProductData | null>(null);
 
     const requestPermissions = async (cb: VoidCallback) => {
@@ -126,7 +133,7 @@ function useBLE(): BluetoothLowEnergyApi {
         if (connectedDevice) {
             bleManager.cancelDeviceConnection(connectedDevice.id);
             setConnectedDevice(null);
-            setProductList([]);
+            productList.setProductList([]);
         }
     };
 
@@ -153,20 +160,31 @@ function useBLE(): BluetoothLowEnergyApi {
                 try {
                     const jsonRes = await res.json();
                     if (res.status === 200) {
+                        console.log(JSON.stringify(jsonRes.data));
+
                         let newProduct: ProductData = await JSON.parse(JSON.stringify(jsonRes.data));
                         // console.log(product);
 
                         // if uid is not already in list and there is a new product / server response
-                        if (!productList.some(e => e.id === uid) && newProduct != null) {
+                        if (!productListInterface.productList.some(e => e.id === uid) && newProduct != null) {
                             let newItem: ItemData = { id: uid, name: newProduct.name, price: newProduct.price.toString(), aisle: newProduct.aisle };
                             // setNewProduct(null);
 
-                            setProductList((prevState: ItemData[]) => {
-                                if (!isDuplicateItem(prevState, newItem)) {
-                                    return [...prevState, newItem];
-                                }
-                                return prevState;
-                            });
+                            let oldProductList = productListInterface.productList;
+
+                            if (!isDuplicateItem(oldProductList, newItem)) {
+                                productListInterface.setProductList([...oldProductList, newItem]);
+                                console.log("test1 " + productListInterface.productList);
+                            }
+                            console.log("test2 " + productListInterface.productList);
+
+
+                            // setProductList((prevState: ItemData[]) => {
+                            //     if (!isDuplicateItem(prevState, newItem)) {
+                            //         return [...prevState, newItem];
+                            //     }
+                            //     return prevState;
+                            // });
                         }
                     }
                 } catch (err) {
@@ -207,7 +225,7 @@ function useBLE(): BluetoothLowEnergyApi {
         disconnectFromDevice,
         allDevices,
         connectedDevice,
-        productList,
+        // productList,
     };
 }
 
