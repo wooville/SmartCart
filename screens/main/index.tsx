@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import DeviceModal from '../../DeviceConnectionModal';
 import useBLE from '../../useBLE';
-import { SwipeListView } from 'react-native-swipe-list-view';
+// import { SwipeListView } from 'react-native-swipe-list-view';
 // import ListViewRenderPropGeneric from '../../ListViewRenderPropGeneric';
 
 const API_URL = 'http://smartcartbeanstalk-env.eba-3jmpa3xe.us-east-2.elasticbeanstalk.com/auth';
