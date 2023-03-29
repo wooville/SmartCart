@@ -16,7 +16,7 @@ import useBLE from '../../useBLE';
 // import { SwipeListView } from 'react-native-swipe-list-view';
 // import ListViewRenderPropGeneric from '../../ListViewRenderPropGeneric';
 
-const API_URL = 'http://smartcartbeanstalk-env.eba-3jmpa3xe.us-east-2.elasticbeanstalk.com/auth';
+const API_URL = 'http://smartcartbeanstalk-env.eba-3jmpa3xe.us-east-2.elasticbeanstalk.com/product';
 
 type mainScreenProp = StackNavigationProp<RootStackParamList, 'Main'>;
 type ItemProps = { name: string, price: string, aisle: string };
@@ -114,6 +114,9 @@ function MainScreen() {
         />
         {/* {swipeListRender()} */}
       </View>
+      <TouchableOpacity style={styles.searchButton} onPress={() => navigation.navigate('Search')}>
+        <Text style={styles.searchButtonText}>Search</Text>
+      </TouchableOpacity>
       <View
         style={styles.ctaButton}>
         <Text style={styles.ctaButtonText}>
@@ -199,6 +202,20 @@ const styles = StyleSheet.create({
     fontSize: 25,
     marginTop: 15,
   },
+  searchButton: {
+    backgroundColor: '#54589A',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 50,
+    marginHorizontal: 20,
+    marginBottom: 5,
+    borderRadius: 8,
+  },
+  searchButtonText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: 'white',
+  },
   ctaButton: {
     backgroundColor: '#54589A',
     justifyContent: 'center',
@@ -214,7 +231,7 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   cartTotalButton: {
-    backgroundColor: '#54589A',
+    backgroundColor: '#004b75',
     justifyContent: 'center',
     alignItems: 'center',
     height: 50,
