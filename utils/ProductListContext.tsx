@@ -12,19 +12,26 @@ import {
 export type ItemData = { id: string, name: string, price: string, aisle: string };
 
 interface IProductContext {
-    productList: ItemData[];
-    addItem?: (item: ItemData) => void;
-    removeItem?: (id: string) => void;
-    clearItems?: () => void;
+    cartList: ItemData[];
+    removeList: ItemData[];
+    isScanToRemove: boolean;
+    setIsScanToRemove?: (bool: boolean) => void;
+    addToCart?: (item: ItemData) => void;
+    addToRemoveList?: (item: ItemData) => void;
+    removeFromCart?: () => void;
+    clearCartList?: () => void;
+    clearRemoveList?: () => void;
 }
 
 const defaultState = {
-    productList: [],
+    cartList: [],
+    removeList: [],
+    isScanToRemove: false,
 };
 
-// const [productList, setProductList] = useState<ItemData[]>([]);
+// const [cartList, setCartList] = useState<ItemData[]>([]);
 
-// const ProductListContext = createContext({ productList, setProductList });
+// const CartListContext = createContext({ cartList, setCartList });
 const ProductListContext = createContext<IProductContext>(defaultState);
 
 interface Props {
@@ -32,24 +39,42 @@ interface Props {
 }
 
 const ProductListProvider: FC<Props> = ({ children }) => {
-    const [productList, setProductList] = useState<ItemData[]>(defaultState.productList);
+    const [cartList, setCartList] = useState<ItemData[]>(defaultState.cartList);
+    const [removeList, setRemoveList] = useState<ItemData[]>(defaultState.removeList);
+    const [isScanToRemove, setIsScanToRemove] = useState<boolean>(false);
 
-    const addItem = (item: ItemData) => {
-        setProductList(prev => {
+    const addToCart = (item: ItemData) => {
+        setCartList(prev => {
             return [...prev, item];
         });
     }
 
-    const removeItem = (id: string) => {
-        // setProductList([...productList, item]);
+    const addToRemoveList = (item: ItemData) => {
+        setRemoveList(prev => {
+            return [...prev, item];
+        });
     }
 
-    const clearItems = () => {
-        setProductList([])
+    // remove all the items common between cartList and removeList from cartList
+    const removeFromCart = () => {
+        setCartList(cartList.filter(val => !removeList.includes(val)));
+        clearRemoveList();
+    }
+
+    const clearCartList = () => {
+        setCartList([]);
+    }
+
+    const clearRemoveList = () => {
+        setRemoveList([]);
+    }
+
+    const scanToRemove = (bool: boolean) => {
+        setIsScanToRemove(bool);
     }
 
     return (
-        <ProductListContext.Provider value={{ productList: productList, addItem: addItem, removeItem: removeItem, clearItems: clearItems }}>
+        <ProductListContext.Provider value={{ cartList: cartList, removeList: removeList, isScanToRemove: isScanToRemove, setIsScanToRemove: scanToRemove, addToCart: addToCart, addToRemoveList: addToRemoveList, removeFromCart: removeFromCart, clearCartList: clearCartList, clearRemoveList: clearRemoveList }}>
             {children}
         </ProductListContext.Provider>
     );

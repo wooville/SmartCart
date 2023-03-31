@@ -10,38 +10,75 @@ import {
 import { Modal } from 'react-native';
 import React, { useContext, useState } from 'react';
 import { ItemData } from './UseBLE';
+import { Item } from './CartProductList';
 import { ProductListContext } from '../../utils/ProductListContext';
 
 export const RemoveProduct = () => {
-    const { productList, addItem, removeItem, clearItems } = useContext(ProductListContext);
-    const [removeList, setRemoveList] = useState<ItemData[]>([]);
+    const { cartList, removeList, isScanToRemove, setIsScanToRemove, addToCart, addToRemoveList, removeFromCart, clearCartList, clearRemoveList } = useContext(ProductListContext);
+    // const [removeList, setRemoveList] = useState<ItemData[]>([]);
     const [isProductRemoveModalVisible, setIsProductRemoveModalVisible] = useState<boolean>(false);
 
     const openProductRemoveModal = () => {
-        waitForProductRemove();
+        if (setIsScanToRemove) setIsScanToRemove(true);
+        else console.log("no setIsScanToRemove");
+
         setIsProductRemoveModalVisible(true);
     };
 
-    const waitForProductRemove = () => {
+    const closeProductRemoveModal = () => {
+        if (setIsScanToRemove) setIsScanToRemove(false);
+        else console.log("no setIsScanToRemove");
 
-    }
+        if (clearRemoveList) clearRemoveList();
+        else console.log("no clearRemoveList");
+
+        setIsProductRemoveModalVisible(false);
+    };
+
+    const confirmProductRemoveModal = () => {
+        if (removeFromCart) removeFromCart();
+        else console.log("no removeFromCart");
+
+        if (setIsScanToRemove) setIsScanToRemove(false);
+        else console.log("no setIsScanToRemove");
+
+        if (clearRemoveList) clearRemoveList();
+        else console.log("no clearRemoveList");
+
+        setIsProductRemoveModalVisible(false);
+    };
 
     return (
         <>
             <Modal animationType={"slide"}
                 // transparent={true}
                 visible={isProductRemoveModalVisible}
-                onRequestClose={() => { setIsProductRemoveModalVisible(false); }}>
+                onRequestClose={closeProductRemoveModal}>
                 <View style={styles.BLEDeviceTitleWrapper}>
                     <Text style={styles.BLEDeviceTitleText}>{"Please scan the items you wish to remove:"}</Text>
                 </View>
+
+                <FlatList
+                    data={removeList}
+                    renderItem={({ item }) => <Item name={item.name} price={item.price} aisle={item.aisle} />}
+                    keyExtractor={item => item.id}
+                />
+
+                <TouchableOpacity
+                    onPress={confirmProductRemoveModal}
+                    style={styles.ctaButton}
+                >
+                    <Text style={styles.ctaButtonText}>
+                        {'Confirm Removal'}
+                    </Text>
+                </TouchableOpacity>
             </Modal>
             <TouchableOpacity
                 onPress={openProductRemoveModal}
                 style={styles.ctaButton}
             >
                 <Text style={styles.ctaButtonText}>
-                    {'Remove Product'}
+                    {'Remove Items'}
                 </Text>
             </TouchableOpacity>
         </>

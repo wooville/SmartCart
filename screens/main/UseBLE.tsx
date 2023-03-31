@@ -39,14 +39,14 @@ interface ProductData {
 export type ItemData = { id: string, name: string, price: string, aisle: string };
 
 export const UseBLE = () => {
-    // const productListInterface = useContext(productContext);
+    // const cartListInterface = useContext(productContext);
     const [isDeviceModalVisible, setIsDeviceModalVisible] = useState<boolean>(false);
-    const { productList, addItem, removeItem, clearItems } = useContext(ProductListContext);
+    const { cartList, removeList, isScanToRemove, setIsScanToRemove, addToCart, addToRemoveList, removeFromCart, clearCartList, clearRemoveList } = useContext(ProductListContext);
 
     const [allDevices, setAllDevices] = useState<Device[]>([]);
     const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
 
-    // const [productList, setProductList] = useState<ItemData[]>([]);
+    // const [cartList, setProductList] = useState<ItemData[]>([]);
     // const [newProduct, setNewProduct] = useState<ProductData | null>(null);
 
     const requestPermissions = async (cb: VoidCallback) => {
@@ -141,8 +141,12 @@ export const UseBLE = () => {
         if (connectedDevice) {
             bleManager.cancelDeviceConnection(connectedDevice.id);
             setConnectedDevice(null);
-            if (clearItems) clearItems();
-            else console.log("no clearItemsy");
+
+            if (clearCartList) clearCartList();
+            else console.log("no clearCartList");
+
+            if (clearRemoveList) clearRemoveList();
+            else console.log("no clearRemoveList");
         }
     };
 
@@ -175,25 +179,19 @@ export const UseBLE = () => {
                         // console.log(product);
 
                         // if uid is not already in list and there is a new product / server response
-                        // if (!productList.some(e => e.id === uid) && newProduct != null) {
-                        let newItem: ItemData = { id: uid, name: newProduct.name, price: newProduct.price.toString(), aisle: newProduct.aisle };
-                        // setNewProduct(null);
+                        if (!cartList.some(e => e.id === uid) && newProduct != null) {
+                            let scannedItem: ItemData = { id: uid, name: newProduct.name, price: newProduct.price.toString(), aisle: newProduct.aisle };
 
-                        // if (!isDuplicateItem(oldProductList, newItem)) {
-                        if (addItem) addItem(newItem);
-                        else console.log("no addItem");
-                        // console.log("test1 " + productList);
-                        // }
-                        // console.log("test2 " + productList);
+                            // check if we are scanning to add or remove items
+                            if (!isScanToRemove) {
+                                if (addToCart) addToCart(scannedItem);
+                                else console.log("no addToCart");
+                            } else {
+                                if (addToRemoveList) addToRemoveList(scannedItem);
+                                else console.log("no addToRemoveList");
+                            }
 
-
-                        // setProductList((prevState: ItemData[]) => {
-                        //     if (!isDuplicateItem(prevState, newItem)) {
-                        //         return [...prevState, newItem];
-                        //     }
-                        //     return prevState;
-                        // });
-                        // }
+                        }
                     }
                 } catch (err) {
                     console.log(err);

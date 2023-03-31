@@ -12,7 +12,7 @@ import { ProductListContext } from '../../utils/ProductListContext';
 
 type ItemProps = { name: string, price: string, aisle: string };
 
-const Item = ({ name, price, aisle }: ItemProps) => (
+export const Item = ({ name, price, aisle }: ItemProps) => (
     <View style={styles.item}>
         <Text style={styles.name}>{name}</Text>
         <Text style={styles.aisle}>{aisle}</Text>
@@ -21,16 +21,16 @@ const Item = ({ name, price, aisle }: ItemProps) => (
 );
 
 export const CartProductList = () => {
-    const { productList, addItem, removeItem, clearItems } = useContext(ProductListContext);
+    const { cartList, removeList, isScanToRemove, setIsScanToRemove, addToCart, addToRemoveList, removeFromCart, clearCartList, clearRemoveList } = useContext(ProductListContext);
 
-    const sumTotal = productList.reduce((acc, next) => {
+    const sumTotal = cartList.reduce((acc, next) => {
         return acc + parseFloat(next.price)
     }, 0).toFixed(2)
 
     return (
         <>
             <FlatList
-                data={productList}
+                data={cartList}
                 renderItem={({ item }) => <Item name={item.name} price={item.price} aisle={item.aisle} />}
                 keyExtractor={item => item.id}
             />
