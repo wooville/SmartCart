@@ -1,5 +1,3 @@
-import { useContext } from 'react';
-import { ProductListContext } from './ProductListContext';
 import {
     Dimensions,
     FlatList,
@@ -9,34 +7,44 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
+import { Modal } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { ItemData } from './UseBLE';
+import { ProductListContext } from '../../utils/ProductListContext';
 
-type ItemProps = { name: string, price: string, aisle: string };
+export const RemoveProduct = () => {
+    const { productList, addItem, removeItem, clearItems } = useContext(ProductListContext);
+    const [removeList, setRemoveList] = useState<ItemData[]>([]);
+    const [isProductRemoveModalVisible, setIsProductRemoveModalVisible] = useState<boolean>(false);
 
-const Item = ({ name, price, aisle }: ItemProps) => (
-    <View style={styles.item}>
-        <Text style={styles.name}>{name}</Text>
-        <Text style={styles.aisle}>{aisle}</Text>
-        <Text style={styles.price}>{price}</Text>
-    </View>
-);
+    const openProductRemoveModal = () => {
+        waitForProductRemove();
+        setIsProductRemoveModalVisible(true);
+    };
 
-export default function ProductList() {
-    const productList = useContext(ProductListContext);
-
-    const setProductList = () => {
+    const waitForProductRemove = () => {
 
     }
 
     return (
-        <section className="section">
-            <ProductListContext.Provider value={productList, setProductList}>
-                <FlatList
-                    data={productList}
-                    renderItem={({ item }) => <Item name={item.name} price={item.price} aisle={item.aisle} />}
-                    keyExtractor={item => item.id}
-                />
-            </ProductListContext.Provider>
-        </section>
+        <>
+            <Modal animationType={"slide"}
+                // transparent={true}
+                visible={isProductRemoveModalVisible}
+                onRequestClose={() => { setIsProductRemoveModalVisible(false); }}>
+                <View style={styles.BLEDeviceTitleWrapper}>
+                    <Text style={styles.BLEDeviceTitleText}>{"Please scan the items you wish to remove:"}</Text>
+                </View>
+            </Modal>
+            <TouchableOpacity
+                onPress={openProductRemoveModal}
+                style={styles.ctaButton}
+            >
+                <Text style={styles.ctaButtonText}>
+                    {'Remove Product'}
+                </Text>
+            </TouchableOpacity>
+        </>
     );
 }
 

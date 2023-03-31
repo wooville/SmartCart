@@ -1,6 +1,6 @@
 /* eslint-disable no-bitwise */
 import { createContext, useContext, useState } from 'react';
-import { PermissionsAndroid, Platform } from 'react-native';
+import { PermissionsAndroid, Platform, TouchableOpacity, Text, StyleSheet, } from 'react-native';
 import {
     BleError,
     BleManager,
@@ -10,7 +10,9 @@ import {
 import { PERMISSIONS, requestMultiple } from 'react-native-permissions';
 import DeviceInfo from 'react-native-device-info';
 // import { productContext, ProductListProvider } from './utils/ProductListProvider';
-import { ProductListContext } from './utils/ProductListProvider';
+import { ProductListContext } from '../../utils/ProductListContext';
+import DeviceModal from '../../DeviceConnectionModal';
+
 
 import { atob } from 'react-native-quick-base64';
 
@@ -36,21 +38,10 @@ interface ProductData {
 
 export type ItemData = { id: string, name: string, price: string, aisle: string };
 
-interface BluetoothLowEnergyApi {
-    requestPermissions(callback: VoidCallback): Promise<void>;
-    connectToDevice: (deviceId: Device) => Promise<void>;
-    disconnectFromDevice: () => void;
-    connectedDevice: Device | null;
-    scanForPeripherals(): void;
-    allDevices: Device[];
-    // productList: ItemData[];
-}
-
-// export const productList = useContext(productContext);
-
-function useBLE(): BluetoothLowEnergyApi {
+export const UseBLE = () => {
     // const productListInterface = useContext(productContext);
-    const productList = useContext(ProductListContext);
+    const [isDeviceModalVisible, setIsDeviceModalVisible] = useState<boolean>(false);
+    const { productList, addItem, removeItem, clearItems } = useContext(ProductListContext);
 
     const [allDevices, setAllDevices] = useState<Device[]>([]);
     const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
@@ -96,11 +87,28 @@ function useBLE(): BluetoothLowEnergyApi {
         }
     }
 
+    const scanForDevices = () => {
+        requestPermissions((isGranted: boolean) => {
+            if (isGranted) {
+                scanForPeripherals();
+            }
+        });
+    };
+
+    const hideDeviceModal = () => {
+        setIsDeviceModalVisible(false);
+    };
+
+    const openDeviceModal = async () => {
+        scanForDevices();
+        setIsDeviceModalVisible(true);
+    };
+
     const isDuplicateDevice = (devices: Device[], nextDevice: Device) =>
         devices.findIndex(device => nextDevice.id === device.id) > -1;
 
-    const isDuplicateItem = (items: ItemData[], nextItem: ItemData) =>
-        items.findIndex(item => nextItem.id === item.id) > -1;
+    // const isDuplicateItem = (items: ItemData[], nextItem: ItemData) =>
+    //     items.findIndex(item => nextItem.id === item.id) > -1;
 
     const scanForPeripherals = () =>
         bleManager.startDeviceScan(null, null, (error, device) => {
@@ -133,7 +141,8 @@ function useBLE(): BluetoothLowEnergyApi {
         if (connectedDevice) {
             bleManager.cancelDeviceConnection(connectedDevice.id);
             setConnectedDevice(null);
-            productList.setProductList([]);
+            if (clearItems) clearItems();
+            else console.log("no clearItemsy");
         }
     };
 
@@ -166,26 +175,25 @@ function useBLE(): BluetoothLowEnergyApi {
                         // console.log(product);
 
                         // if uid is not already in list and there is a new product / server response
-                        if (!productListInterface.productList.some(e => e.id === uid) && newProduct != null) {
-                            let newItem: ItemData = { id: uid, name: newProduct.name, price: newProduct.price.toString(), aisle: newProduct.aisle };
-                            // setNewProduct(null);
+                        // if (!productList.some(e => e.id === uid) && newProduct != null) {
+                        let newItem: ItemData = { id: uid, name: newProduct.name, price: newProduct.price.toString(), aisle: newProduct.aisle };
+                        // setNewProduct(null);
 
-                            let oldProductList = productListInterface.productList;
+                        // if (!isDuplicateItem(oldProductList, newItem)) {
+                        if (addItem) addItem(newItem);
+                        else console.log("no addItem");
+                        // console.log("test1 " + productList);
+                        // }
+                        // console.log("test2 " + productList);
 
-                            if (!isDuplicateItem(oldProductList, newItem)) {
-                                productListInterface.setProductList([...oldProductList, newItem]);
-                                console.log("test1 " + productListInterface.productList);
-                            }
-                            console.log("test2 " + productListInterface.productList);
 
-
-                            // setProductList((prevState: ItemData[]) => {
-                            //     if (!isDuplicateItem(prevState, newItem)) {
-                            //         return [...prevState, newItem];
-                            //     }
-                            //     return prevState;
-                            // });
-                        }
+                        // setProductList((prevState: ItemData[]) => {
+                        //     if (!isDuplicateItem(prevState, newItem)) {
+                        //         return [...prevState, newItem];
+                        //     }
+                        //     return prevState;
+                        // });
+                        // }
                     }
                 } catch (err) {
                     console.log(err);
@@ -218,15 +226,68 @@ function useBLE(): BluetoothLowEnergyApi {
 
 
 
-    return {
-        requestPermissions,
-        scanForPeripherals,
-        connectToDevice,
-        disconnectFromDevice,
-        allDevices,
-        connectedDevice,
-        // productList,
-    };
+    return (
+        <>
+            <TouchableOpacity
+                onPress={connectedDevice ? disconnectFromDevice : openDeviceModal}
+                style={styles.ctaButton}>
+                <Text style={styles.ctaButtonText}>
+                    {connectedDevice ? 'Disconnect' : 'Connect'}
+                </Text>
+            </TouchableOpacity>
+            <DeviceModal
+                closeModal={hideDeviceModal}
+                visible={isDeviceModalVisible}
+                connectToPeripheral={connectToDevice}
+                devices={allDevices}
+            />
+        </>
+    );
 }
 
-export default useBLE;
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#f8fff8',
+    },
+    item: {
+        // position: 'absolute',
+        // bottom: 0,
+        flexDirection: 'column',
+        // justifyContent: 'space-between',
+        backgroundColor: '#00CC66',
+        padding: 20,
+        marginVertical: 8,
+        marginHorizontal: 16,
+        // height: 150,
+        // width: "90%",
+    },
+    name: {
+        fontSize: 20,
+    },
+    price: {
+        fontSize: 18,
+        flexDirection: 'column',
+        textAlign: 'right',
+        fontWeight: '700',
+    },
+    aisle: {
+        fontSize: 18,
+        flexDirection: 'column',
+        textAlign: 'right',
+    },
+    ctaButton: {
+        backgroundColor: '#54589A',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: 50,
+        marginHorizontal: 20,
+        marginBottom: 5,
+        borderRadius: 8,
+    },
+    ctaButtonText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: 'white',
+    },
+});

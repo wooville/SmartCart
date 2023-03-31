@@ -12,14 +12,14 @@ import {
   View,
 } from 'react-native';
 import { Modal } from 'react-native';
-import DeviceModal from '../../DeviceConnectionModal';
-import useBLE from '../../useBLE';
+import { UseBLE } from './UseBLE';
 import { SwipeListView } from 'react-native-swipe-list-view';
 // import ListViewRenderPropGeneric from '../../ListViewRenderPropGeneric';
-import { ItemData } from '../../useBLE';
-import { productContext } from '../../utils/ProductListProvider';
+import { ProductListContext, ProductListProvider } from '../../utils/ProductListContext';
+import { CartProductList } from './CartProductList';
+import { RemoveProduct } from './RemoveProduct';
 
-const API_URL = 'http://smartcartbeanstalk-env.eba-3jmpa3xe.us-east-2.elasticbeanstalk.com/auth';
+const API_URL = 'http://smartcartbeanstalk-env.eba-3jmpa3xe.us-east-2.elasticbeanstalk.com/product/';
 
 type mainScreenProp = StackNavigationProp<RootStackParamList, 'Main'>;
 type ItemProps = { name: string, price: string, aisle: string };
@@ -32,63 +32,12 @@ const Item = ({ name, price, aisle }: ItemProps) => (
   </View>
 );
 
-// import SwipeToDelete from '../../swipe_lists/swipe_to_delete';
-
-// const testList = Array(20)
-//   .fill("")
-//   .map((_, i) => ({ id: `${i}`, title: `item #${i}` }));
-
-// const componentMap = {
-//   SwipeToDelete,
-// };
-
-
 function MainScreen() {
   const navigation = useNavigation<mainScreenProp>();
-  const {
-    requestPermissions,
-    scanForPeripherals,
-    connectToDevice,
-    disconnectFromDevice,
-    allDevices,
-    connectedDevice,
-    // productList,
-  } = useBLE();
-  const productListInterface = useContext(productContext);
-  const [isDeviceModalVisible, setIsDeviceModalVisible] = useState<boolean>(false);
-  const [isProductRemoveModalVisible, setIsProductRemoveModalVisible] = useState<boolean>(false);
-  const [removeList, setProductList] = useState<ItemData[]>([]);
+
+  // const { productList, addItem, removeItem, clearItems } = useContext(ProductListContext);
 
 
-  const sumTotal = productListInterface.productList.reduce((acc, next) => {
-    return acc + parseFloat(next.price)
-  }, 0)
-
-  const scanForDevices = () => {
-    requestPermissions((isGranted: boolean) => {
-      if (isGranted) {
-        scanForPeripherals();
-      }
-    });
-  };
-
-  const hideDeviceModal = () => {
-    setIsDeviceModalVisible(false);
-  };
-
-  const openDeviceModal = async () => {
-    scanForDevices();
-    setIsDeviceModalVisible(true);
-  };
-
-  const openProductRemoveModal = () => {
-    waitForProductRemove();
-    setIsProductRemoveModalVisible(true);
-  };
-
-  const waitForProductRemove = () => {
-
-  }
 
   // const swipeListRender = () => {
   //   const Component = SwipeToDelete;
@@ -97,75 +46,14 @@ function MainScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* <View style={styles.BLEDeviceTitleWrapper}>
-        {connectedDevice ? (
-          <>
-            <Text style={styles.BLEDeviceTitleText}>Connected Device Info</Text>
-            <Text style={styles.BLEDeviceText}>{connectedDevice.name}</Text>
-          </>
-        ) : (
-          <Text style={styles.BLEDeviceTitleText}>
-            Please Connect to a BLE Device
-          </Text>
-        )}
-      </View> */}
-      <TouchableOpacity
-        onPress={connectedDevice ? disconnectFromDevice : openDeviceModal}
-        style={styles.ctaButton}>
-        <Text style={styles.ctaButtonText}>
-          {connectedDevice ? 'Disconnect' : 'Connect'}
-        </Text>
-      </TouchableOpacity>
-      <DeviceModal
-        closeModal={hideDeviceModal}
-        visible={isDeviceModalVisible}
-        connectToPeripheral={connectToDevice}
-        devices={allDevices}
-      />
-      <Modal animationType={"slide"}
-        // transparent={true}
-        visible={isProductRemoveModalVisible}
-        onRequestClose={() => { setIsProductRemoveModalVisible(false); }}>
-        <View style={styles.BLEDeviceTitleWrapper}>
-          <Text style={styles.BLEDeviceTitleText}>{"Please scan the items you wish to remove:"}</Text>
-          <FlatList
-            data={removeList}
-            renderItem={({ item }) => <Item name={item.name} price={item.price} aisle={item.aisle} />}
-            keyExtractor={item => item.id}
-          />
+      <ProductListProvider>
+        <UseBLE />
+        <View style={styles.container}>
+          <CartProductList />
         </View>
-      </Modal>
-      <View style={styles.container}>
-        <FlatList
-          data={productListInterface.productList}
-          renderItem={({ item }) => <Item name={item.name} price={item.price} aisle={item.aisle} />}
-          keyExtractor={item => item.id}
-        />
-        {/* {swipeListRender()} */}
-      </View>
-      <TouchableOpacity
-        onPress={openProductRemoveModal}
-        style={styles.ctaButton}
-      >
-        <Text style={styles.ctaButtonText}>
-          {'Remove Product'}
-        </Text>
-      </TouchableOpacity>
-      <View
-        style={styles.ctaButton}>
-        <Text style={styles.ctaButtonText}>
-          {'Cart Total: ' + sumTotal}
-        </Text>
-      </View>
-      {/* <Text style={styles.ctaButtonText}>
-        {'Cart Total: ' + cartTotal}
-      </Text> */}
+        <RemoveProduct />
+      </ProductListProvider>
     </SafeAreaView >
-
-    // <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-    //   <Text>Main Screen</Text>
-    //   <Button title="Login" onPress={() => navigation.navigate('Auth')} />
-    // </View>
   );
 }
 
