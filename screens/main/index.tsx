@@ -51,8 +51,15 @@ function MainScreen() {
         <View style={styles.container}>
           <CartProductList />
           <RemoveProduct />
-
         </View>
+        <TouchableOpacity
+          onPress={() => navigation.navigate("Search")}
+          style={styles.ctaButton}
+        >
+          <Text style={styles.ctaButtonText}>
+            {'Search'}
+          </Text>
+        </TouchableOpacity>
       </ProductListProvider>
     </SafeAreaView >
   );
