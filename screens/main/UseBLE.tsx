@@ -48,10 +48,13 @@ export const UseBLE = () => {
     const [sendItemToRemoveList, setSendItemToRemoveList] = useState<boolean>(false);
 
     const isScanToRemoveRef = useRef(isScanToRemove)
+    const cartListRef = useRef(cartList)
+
 
     useEffect(() => {
         isScanToRemoveRef.current = isScanToRemove;
-    }, [isScanToRemove])
+        cartListRef.current = cartList;
+    }, [isScanToRemove, cartList])
 
     // const [cartList, setProductList] = useState<ItemData[]>([]);
     // const [newProduct, setNewProduct] = useState<ProductData | null>(null);
@@ -114,8 +117,8 @@ export const UseBLE = () => {
     const isDuplicateDevice = (devices: Device[], nextDevice: Device) =>
         devices.findIndex(device => nextDevice.id === device.id) > -1;
 
-    // const isDuplicateItem = (items: ItemData[], nextItem: ItemData) =>
-    //     items.findIndex(item => nextItem.id === item.id) > -1;
+    const isDuplicateItem = (items: ItemData[], nextItem: ItemData) =>
+        items.findIndex(item => nextItem.id === item.id) > -1;
 
     const scanForPeripherals = () =>
         bleManager.startDeviceScan(null, null, (error, device) => {
@@ -193,11 +196,11 @@ export const UseBLE = () => {
                             if (!isScanToRemoveRef.current) {
                                 if (addToCart) addToCart(scannedItem);
                                 else console.log("no addToCart");
-                            } else {
+                            }
+                            if (isScanToRemoveRef.current) {
                                 if (addToRemoveList) addToRemoveList(scannedItem);
                                 else console.log("no addToRemoveList");
                             }
-
                         }
                     }
                 } catch (err) {

@@ -1,4 +1,4 @@
-import { createContext, FC, useState, useRef } from 'react';
+import { createContext, FC, useState, useRef, useEffect } from 'react';
 
 export type ItemData = { id: string, name: string, price: string, aisle: string };
 
@@ -34,11 +34,20 @@ const ProductListProvider: FC<Props> = ({ children }) => {
     const [removeList, setRemoveList] = useState<ItemData[]>(defaultState.removeList);
     const [isScanToRemove, setIsScanToRemove] = useState<boolean>(defaultState.isScanToRemove);
 
+    const cartListRef = useRef(cartList)
+    const removeListRef = useRef(removeList)
+
+    useEffect(() => {
+        cartListRef.current = cartList;
+        removeListRef.current = removeList;
+    }, [cartList, removeList])
+
     const isDuplicateItem = (items: ItemData[], nextItem: ItemData) =>
         items.findIndex(item => nextItem.id === item.id) > -1;
 
+
     const addToCart = (item: ItemData) => {
-        if (!isDuplicateItem(cartList, item)) {
+        if (!isDuplicateItem(cartListRef.current, item)) {
             setCartList(prev => {
                 return [...prev, item];
             });
@@ -46,9 +55,11 @@ const ProductListProvider: FC<Props> = ({ children }) => {
     }
 
     const addToRemoveList = (item: ItemData) => {
-        setRemoveList(prev => {
-            return [...prev, item];
-        });
+        if (!isDuplicateItem(removeListRef.current, item) && isDuplicateItem(cartListRef.current, item)) {
+            setRemoveList(prev => {
+                return [...prev, item];
+            });
+        }
     }
 
     // remove all the items common between cartList and removeList from cartList
