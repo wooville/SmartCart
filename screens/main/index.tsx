@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../RootStackParams';
 import {
@@ -11,12 +11,15 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import DeviceModal from '../../DeviceConnectionModal';
-import useBLE from '../../useBLE';
-// import { SwipeListView } from 'react-native-swipe-list-view';
+import { Modal } from 'react-native';
+import { UseBLE } from './UseBLE';
+import { SwipeListView } from 'react-native-swipe-list-view';
 // import ListViewRenderPropGeneric from '../../ListViewRenderPropGeneric';
+import { ProductListContext, ProductListProvider } from '../../utils/ProductListContext';
+import { CartProductList } from './CartProductList';
+import { RemoveProduct } from './RemoveProduct';
 
-const API_URL = 'http://smartcartbeanstalk-env.eba-3jmpa3xe.us-east-2.elasticbeanstalk.com/auth';
+const API_URL = 'http://smartcartbeanstalk-env.eba-3jmpa3xe.us-east-2.elasticbeanstalk.com/product/';
 
 type mainScreenProp = StackNavigationProp<RootStackParamList, 'Main'>;
 type ItemProps = { name: string, price: string, aisle: string };
@@ -29,50 +32,12 @@ const Item = ({ name, price, aisle }: ItemProps) => (
   </View>
 );
 
-// import SwipeToDelete from '../../swipe_lists/swipe_to_delete';
-
-// const testList = Array(20)
-//   .fill("")
-//   .map((_, i) => ({ id: `${i}`, title: `item #${i}` }));
-
-// const componentMap = {
-//   SwipeToDelete,
-// };
-
-
 function MainScreen() {
   const navigation = useNavigation<mainScreenProp>();
-  const {
-    requestPermissions,
-    scanForPeripherals,
-    connectToDevice,
-    disconnectFromDevice,
-    allDevices,
-    connectedDevice,
-    productList,
-  } = useBLE();
-  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
-  const sumTotal = productList.reduce((acc, next) => {
-    return acc + parseFloat(next.price)
-  }, 0)
+  // const { productList, addItem, removeItem, clearItems } = useContext(ProductListContext);
 
-  const scanForDevices = () => {
-    requestPermissions((isGranted: boolean) => {
-      if (isGranted) {
-        scanForPeripherals();
-      }
-    });
-  };
 
-  const hideModal = () => {
-    setIsModalVisible(false);
-  };
-
-  const openModal = async () => {
-    scanForDevices();
-    setIsModalVisible(true);
-  };
 
   // const swipeListRender = () => {
   //   const Component = SwipeToDelete;
@@ -81,54 +46,22 @@ function MainScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* <View style={styles.BLEDeviceTitleWrapper}>
-        {connectedDevice ? (
-          <>
-            <Text style={styles.BLEDeviceTitleText}>Connected Device Info</Text>
-            <Text style={styles.BLEDeviceText}>{connectedDevice.name}</Text>
-          </>
-        ) : (
-          <Text style={styles.BLEDeviceTitleText}>
-            Please Connect to a BLE Device
+      <ProductListProvider>
+        <UseBLE />
+        <View style={styles.container}>
+          <CartProductList />
+          <RemoveProduct />
+        </View>
+        <TouchableOpacity
+          onPress={() => navigation.navigate("Search")}
+          style={styles.ctaButton}
+        >
+          <Text style={styles.ctaButtonText}>
+            {'Search'}
           </Text>
-        )}
-      </View> */}
-      <TouchableOpacity
-        onPress={connectedDevice ? disconnectFromDevice : openModal}
-        style={styles.ctaButton}>
-        <Text style={styles.ctaButtonText}>
-          {connectedDevice ? 'Disconnect' : 'Connect'}
-        </Text>
-      </TouchableOpacity>
-      <DeviceModal
-        closeModal={hideModal}
-        visible={isModalVisible}
-        connectToPeripheral={connectToDevice}
-        devices={allDevices}
-      />
-      <View style={styles.container}>
-        <FlatList
-          data={productList}
-          renderItem={({ item }) => <Item name={item.name} price={item.price} aisle={item.aisle} />}
-          keyExtractor={item => item.id}
-        />
-        {/* {swipeListRender()} */}
-      </View>
-      <View
-        style={styles.ctaButton}>
-        <Text style={styles.ctaButtonText}>
-          {'Cart Total: ' + sumTotal}
-        </Text>
-      </View>
-      {/* <Text style={styles.ctaButtonText}>
-        {'Cart Total: ' + cartTotal}
-      </Text> */}
-    </SafeAreaView>
-
-    // <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-    //   <Text>Main Screen</Text>
-    //   <Button title="Login" onPress={() => navigation.navigate('Auth')} />
-    // </View>
+        </TouchableOpacity>
+      </ProductListProvider>
+    </SafeAreaView >
   );
 }
 
@@ -185,7 +118,7 @@ const styles = StyleSheet.create({
   },
   BLEDeviceTitleWrapper: {
     flex: 1,
-    justifyContent: 'center',
+    // justifyContent: 'center',
     alignItems: 'center',
   },
   BLEDeviceTitleText: {
@@ -198,6 +131,20 @@ const styles = StyleSheet.create({
   BLEDeviceText: {
     fontSize: 25,
     marginTop: 15,
+  },
+  searchButton: {
+    backgroundColor: '#54589A',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 50,
+    marginHorizontal: 20,
+    marginBottom: 5,
+    borderRadius: 8,
+  },
+  searchButtonText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: 'white',
   },
   ctaButton: {
     backgroundColor: '#54589A',
@@ -213,8 +160,17 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'white',
   },
-  cartTotalButton: {
+  removeProductButton: {
     backgroundColor: '#54589A',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 50,
+    marginHorizontal: 20,
+    marginBottom: 5,
+    borderRadius: 8,
+  },
+  cartTotalButton: {
+    backgroundColor: '#004b75',
     justifyContent: 'center',
     alignItems: 'center',
     height: 50,

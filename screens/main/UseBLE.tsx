@@ -1,6 +1,6 @@
 /* eslint-disable no-bitwise */
-import { createContext, useContext, useState } from 'react';
-import { PermissionsAndroid, Platform } from 'react-native';
+import { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { PermissionsAndroid, Platform, TouchableOpacity, Text, StyleSheet, } from 'react-native';
 import {
     BleError,
     BleManager,
@@ -9,10 +9,14 @@ import {
 } from 'react-native-ble-plx';
 import { PERMISSIONS, requestMultiple } from 'react-native-permissions';
 import DeviceInfo from 'react-native-device-info';
+// import { productContext, ProductListProvider } from './utils/ProductListProvider';
+import { ProductListContext } from '../../utils/ProductListContext';
+import DeviceModal from '../../DeviceConnectionModal';
+
 
 import { atob } from 'react-native-quick-base64';
 
-const API_URL = 'http://smartcartbeanstalk-env.eba-3jmpa3xe.us-east-2.elasticbeanstalk.com/prod';
+const API_URL = 'http://smartcartbeanstalk-env.eba-3jmpa3xe.us-east-2.elasticbeanstalk.com/product';
 
 const bleManager = new BleManager();
 
@@ -26,29 +30,33 @@ interface ProductData {
     name: string
     price: number
     aisle: string
+    tags: string
+    imgurl: string
     createdAt: string
     updatedAt: string
 };
 
-type ItemData = { id: string, name: string, price: string, aisle: string };
+export type ItemData = { id: string, name: string, price: string, aisle: string };
 
-interface BluetoothLowEnergyApi {
-    requestPermissions(callback: VoidCallback): Promise<void>;
-    connectToDevice: (deviceId: Device) => Promise<void>;
-    disconnectFromDevice: () => void;
-    connectedDevice: Device | null;
-    scanForPeripherals(): void;
-    allDevices: Device[];
-    productList: ItemData[];
-}
+export const UseBLE = () => {
+    // const cartListInterface = useContext(productContext);
+    const [isDeviceModalVisible, setIsDeviceModalVisible] = useState<boolean>(false);
+    const { cartList, removeList, isScanToRemove, setIsScanToRemove, addToCart, addToRemoveList, removeListFromCart, clearCartList, clearRemoveList } = useContext(ProductListContext);
 
-const ProductListContext = createContext({});
-
-function useBLE(): BluetoothLowEnergyApi {
     const [allDevices, setAllDevices] = useState<Device[]>([]);
     const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
+    const [sendItemToRemoveList, setSendItemToRemoveList] = useState<boolean>(false);
 
-    const [productList, setProductList] = useState<ItemData[]>([]);
+    const isScanToRemoveRef = useRef(isScanToRemove)
+    const cartListRef = useRef(cartList)
+
+
+    useEffect(() => {
+        isScanToRemoveRef.current = isScanToRemove;
+        cartListRef.current = cartList;
+    }, [isScanToRemove, cartList])
+
+    // const [cartList, setProductList] = useState<ItemData[]>([]);
     // const [newProduct, setNewProduct] = useState<ProductData | null>(null);
 
     const requestPermissions = async (cb: VoidCallback) => {
@@ -89,11 +97,25 @@ function useBLE(): BluetoothLowEnergyApi {
         }
     }
 
+    const scanForDevices = () => {
+        requestPermissions((isGranted: boolean) => {
+            if (isGranted) {
+                scanForPeripherals();
+            }
+        });
+    };
+
+    const hideDeviceModal = () => {
+        setIsDeviceModalVisible(false);
+    };
+
+    const openDeviceModal = async () => {
+        scanForDevices();
+        setIsDeviceModalVisible(true);
+    };
+
     const isDuplicateDevice = (devices: Device[], nextDevice: Device) =>
         devices.findIndex(device => nextDevice.id === device.id) > -1;
-
-    const isDuplicateItem = (items: ItemData[], nextItem: ItemData) =>
-        items.findIndex(item => nextItem.id === item.id) > -1;
 
     const scanForPeripherals = () =>
         bleManager.startDeviceScan(null, null, (error, device) => {
@@ -126,7 +148,12 @@ function useBLE(): BluetoothLowEnergyApi {
         if (connectedDevice) {
             bleManager.cancelDeviceConnection(connectedDevice.id);
             setConnectedDevice(null);
-            setProductList([]);
+
+            if (clearCartList) clearCartList();
+            else console.log("no clearCartList");
+
+            if (clearRemoveList) clearRemoveList();
+            else console.log("no clearRemoveList");
         }
     };
 
@@ -153,20 +180,24 @@ function useBLE(): BluetoothLowEnergyApi {
                 try {
                     const jsonRes = await res.json();
                     if (res.status === 200) {
+                        console.log(JSON.stringify(jsonRes.data));
+
                         let newProduct: ProductData = await JSON.parse(JSON.stringify(jsonRes.data));
                         // console.log(product);
 
                         // if uid is not already in list and there is a new product / server response
-                        if (!productList.some(e => e.id === uid) && newProduct != null) {
-                            let newItem: ItemData = { id: uid, name: newProduct.name, price: newProduct.price.toString(), aisle: newProduct.aisle };
-                            // setNewProduct(null);
+                        if (!cartList.some(e => e.id === uid) && newProduct != null) {
+                            let scannedItem: ItemData = { id: uid, name: newProduct.name, price: newProduct.price.toString(), aisle: newProduct.aisle };
 
-                            setProductList((prevState: ItemData[]) => {
-                                if (!isDuplicateItem(prevState, newItem)) {
-                                    return [...prevState, newItem];
-                                }
-                                return prevState;
-                            });
+                            // check if we are scanning to add or remove items
+                            if (!isScanToRemoveRef.current) {
+                                if (addToCart) addToCart(scannedItem);
+                                else console.log("no addToCart");
+                            }
+                            if (isScanToRemoveRef.current) {
+                                if (addToRemoveList) addToRemoveList(scannedItem);
+                                else console.log("no addToRemoveList");
+                            }
                         }
                     }
                 } catch (err) {
@@ -200,15 +231,68 @@ function useBLE(): BluetoothLowEnergyApi {
 
 
 
-    return {
-        requestPermissions,
-        scanForPeripherals,
-        connectToDevice,
-        disconnectFromDevice,
-        allDevices,
-        connectedDevice,
-        productList,
-    };
+    return (
+        <>
+            <TouchableOpacity
+                onPress={connectedDevice ? disconnectFromDevice : openDeviceModal}
+                style={styles.ctaButton}>
+                <Text style={styles.ctaButtonText}>
+                    {connectedDevice ? 'Disconnect' : 'Connect'}
+                </Text>
+            </TouchableOpacity>
+            <DeviceModal
+                closeModal={hideDeviceModal}
+                visible={isDeviceModalVisible}
+                connectToPeripheral={connectToDevice}
+                devices={allDevices}
+            />
+        </>
+    );
 }
 
-export default useBLE;
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#f8fff8',
+    },
+    item: {
+        // position: 'absolute',
+        // bottom: 0,
+        flexDirection: 'column',
+        // justifyContent: 'space-between',
+        backgroundColor: '#00CC66',
+        padding: 20,
+        marginVertical: 8,
+        marginHorizontal: 16,
+        // height: 150,
+        // width: "90%",
+    },
+    name: {
+        fontSize: 20,
+    },
+    price: {
+        fontSize: 18,
+        flexDirection: 'column',
+        textAlign: 'right',
+        fontWeight: '700',
+    },
+    aisle: {
+        fontSize: 18,
+        flexDirection: 'column',
+        textAlign: 'right',
+    },
+    ctaButton: {
+        backgroundColor: '#54589A',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: 50,
+        marginHorizontal: 20,
+        marginBottom: 5,
+        borderRadius: 8,
+    },
+    ctaButtonText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: 'white',
+    },
+});
