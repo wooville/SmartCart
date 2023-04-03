@@ -12,7 +12,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import MainScreen from './screens/main';
 import AuthScreen from './screens/auth';
-import TestScreen from './screens/test';
 import SearchScreen from './screens/search';
 
 import { RootStackParamList } from './screens/RootStackParams';
