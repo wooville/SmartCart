@@ -15,7 +15,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import MainScreen from './screens/main';
 import AuthScreen from './screens/auth';
-import TestScreen from './screens/test';
 
 import { RootStackParamList } from './screens/RootStackParams';
 
@@ -55,7 +54,6 @@ const App = () => {
       <Stack.Navigator>
         <Stack.Screen name="Auth" component={AuthScreen} />
         <Stack.Screen name="Main" component={MainScreen} />
-        <Stack.Screen name="Test" component={TestScreen} />
       </Stack.Navigator>
     </NavigationContainer>
 
