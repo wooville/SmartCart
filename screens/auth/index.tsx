@@ -174,10 +174,13 @@ function AuthScreen() {
 const styles = StyleSheet.create({
   button: {
     width: '75%',
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: 'white',
     height: 45,
     borderRadius: 50,
     marginVertical: 10,
+    
 }, 
 separator: {
   marginVertical: 5,
@@ -208,6 +211,8 @@ nextbutton: {
   height: 35,
   borderRadius: 20,
   marginVertical: 2,
+  justifyContent: 'center',
+  alignItems: 'center'
 },
 text: {
   marginVertical:3,
