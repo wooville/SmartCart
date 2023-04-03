@@ -24,25 +24,8 @@ const API_URL = 'http://smartcartbeanstalk-env.eba-3jmpa3xe.us-east-2.elasticbea
 type mainScreenProp = StackNavigationProp<RootStackParamList, 'Main'>;
 type ItemProps = { name: string, price: string, aisle: string };
 
-const Item = ({ name, price, aisle }: ItemProps) => (
-  <View style={styles.item}>
-    <Text style={styles.name}>{name}</Text>
-    <Text style={styles.aisle}>{aisle}</Text>
-    <Text style={styles.price}>{price}</Text>
-  </View>
-);
-
 function MainScreen() {
   const navigation = useNavigation<mainScreenProp>();
-
-  // const { productList, addItem, removeItem, clearItems } = useContext(ProductListContext);
-
-
-
-  // const swipeListRender = () => {
-  //   const Component = SwipeToDelete;
-  //   return <Component />;
-  // };
 
   return (
     <SafeAreaView style={styles.container}>
