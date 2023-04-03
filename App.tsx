@@ -8,9 +8,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import DeviceModal from './DeviceConnectionModal';
-// import PulseIndicator from './PulseIndicator';
-import useBLE from './useBLE';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import MainScreen from './screens/main';
@@ -24,33 +21,6 @@ import { RootStackParamList } from './screens/RootStackParams';
 const Stack = createStackNavigator<RootStackParamList>();
 
 const App = () => {
-  const {
-    requestPermissions,
-    scanForPeripherals,
-    connectToDevice,
-    disconnectFromDevice,
-    allDevices,
-    connectedDevice,
-  } = useBLE();
-  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-
-  const scanForDevices = () => {
-    requestPermissions((isGranted: boolean) => {
-      if (isGranted) {
-        scanForPeripherals();
-      }
-    });
-  };
-
-  const hideModal = () => {
-    setIsModalVisible(false);
-  };
-
-  const openModal = async () => {
-    scanForDevices();
-    setIsModalVisible(true);
-  };
-
   return (
     <NavigationContainer>
       <Stack.Navigator>
@@ -59,35 +29,6 @@ const App = () => {
         <Stack.Screen name="Search" component={SearchScreen} />
       </Stack.Navigator>
     </NavigationContainer>
-
-    // <SafeAreaView style={styles.container}>
-    //   <View style={styles.BLEDeviceTitleWrapper}>
-    //     {connectedDevice ? (
-    //       <>
-    //         <Text style={styles.BLEDeviceTitleText}>Connected Device Info</Text>
-    //         <Text style={styles.BLEDeviceText}>{connectedDevice.name} , {referenceNumber.toString()}</Text>
-    //         <Text style={styles.BLEDeviceText}>TEST {referenceStr}</Text>
-    //       </>
-    //     ) : (
-    //       <Text style={styles.BLEDeviceTitleText}>
-    //         Please Connect to a BLE Device
-    //       </Text>
-    //     )}
-    //   </View>
-    //   <TouchableOpacity
-    //     onPress={connectedDevice ? disconnectFromDevice : openModal}
-    //     style={styles.ctaButton}>
-    //     <Text style={styles.ctaButtonText}>
-    //       {connectedDevice ? 'Disconnect' : 'Connect'}
-    //     </Text>
-    //   </TouchableOpacity>
-    //   <DeviceModal
-    //     closeModal={hideModal}
-    //     visible={isModalVisible}
-    //     connectToPeripheral={connectToDevice}
-    //     devices={allDevices}
-    //   />
-    // </SafeAreaView>
   );
 };
 

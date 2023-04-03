@@ -61,6 +61,7 @@ const DeviceModal: FC<DeviceModalProps> = props => {
       style={modalStyle.modalContainer}
       animationType="slide"
       transparent={false}
+      onRequestClose={() => { closeModal(); }}
       visible={visible}>
       <SafeAreaView style={modalStyle.modalTitle}>
         <Text style={modalStyle.modalTitleText}>
