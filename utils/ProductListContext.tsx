@@ -75,13 +75,6 @@ const ProductListProvider: FC<Props> = ({ children }) => {
         setRemoveList([]);
     }
 
-    const updateIsScanToRemove = (bool: boolean) => {
-        return new Promise(() => {
-            setIsScanToRemove(bool);
-        })
-        // setIsScanToRemove(bool);
-    }
-
     return (
         <ProductListContext.Provider value={{ cartList: cartList, removeList: removeList, isScanToRemove: isScanToRemove, setIsScanToRemove: setIsScanToRemove, addToCart: addToCart, addToRemoveList: addToRemoveList, removeFromCart: removeFromCart, clearCartList: clearCartList, clearRemoveList: clearRemoveList }}>
             {children}
