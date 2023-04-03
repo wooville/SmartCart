@@ -1,13 +1,4 @@
-import { createContext, FC, useState } from 'react';
-import {
-    Dimensions,
-    FlatList,
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-} from 'react-native';
+import { createContext, FC, useState, useRef } from 'react';
 
 export type ItemData = { id: string, name: string, price: string, aisle: string };
 
@@ -41,12 +32,17 @@ interface Props {
 const ProductListProvider: FC<Props> = ({ children }) => {
     const [cartList, setCartList] = useState<ItemData[]>(defaultState.cartList);
     const [removeList, setRemoveList] = useState<ItemData[]>(defaultState.removeList);
-    const [isScanToRemove, setIsScanToRemove] = useState<boolean>(false);
+    const [isScanToRemove, setIsScanToRemove] = useState<boolean>(defaultState.isScanToRemove);
+
+    const isDuplicateItem = (items: ItemData[], nextItem: ItemData) =>
+        items.findIndex(item => nextItem.id === item.id) > -1;
 
     const addToCart = (item: ItemData) => {
-        setCartList(prev => {
-            return [...prev, item];
-        });
+        if (!isDuplicateItem(cartList, item)) {
+            setCartList(prev => {
+                return [...prev, item];
+            });
+        }
     }
 
     const addToRemoveList = (item: ItemData) => {
@@ -57,7 +53,17 @@ const ProductListProvider: FC<Props> = ({ children }) => {
 
     // remove all the items common between cartList and removeList from cartList
     const removeFromCart = () => {
-        setCartList(cartList.filter(val => !removeList.includes(val)));
+        // setCartList(cartList.filter(val => !removeList.includes(val)));
+
+        let newCartList = cartList
+
+        for (var i = 0, len = removeList.length; i < len; i++) {
+            var ItemIndex = newCartList.findIndex(item => item.id === removeList[i].id);
+
+            newCartList.splice(ItemIndex, 1)
+        }
+
+        setCartList(newCartList);
         clearRemoveList();
     }
 
@@ -69,12 +75,15 @@ const ProductListProvider: FC<Props> = ({ children }) => {
         setRemoveList([]);
     }
 
-    const scanToRemove = (bool: boolean) => {
-        setIsScanToRemove(bool);
+    const updateIsScanToRemove = (bool: boolean) => {
+        return new Promise(() => {
+            setIsScanToRemove(bool);
+        })
+        // setIsScanToRemove(bool);
     }
 
     return (
-        <ProductListContext.Provider value={{ cartList: cartList, removeList: removeList, isScanToRemove: isScanToRemove, setIsScanToRemove: scanToRemove, addToCart: addToCart, addToRemoveList: addToRemoveList, removeFromCart: removeFromCart, clearCartList: clearCartList, clearRemoveList: clearRemoveList }}>
+        <ProductListContext.Provider value={{ cartList: cartList, removeList: removeList, isScanToRemove: isScanToRemove, setIsScanToRemove: setIsScanToRemove, addToCart: addToCart, addToRemoveList: addToRemoveList, removeFromCart: removeFromCart, clearCartList: clearCartList, clearRemoveList: clearRemoveList }}>
             {children}
         </ProductListContext.Provider>
     );

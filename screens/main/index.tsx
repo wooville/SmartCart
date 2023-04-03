@@ -50,8 +50,9 @@ function MainScreen() {
         <UseBLE />
         <View style={styles.container}>
           <CartProductList />
+          <RemoveProduct />
+
         </View>
-        <RemoveProduct />
       </ProductListProvider>
     </SafeAreaView >
   );

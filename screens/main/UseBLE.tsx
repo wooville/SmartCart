@@ -1,5 +1,5 @@
 /* eslint-disable no-bitwise */
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { PermissionsAndroid, Platform, TouchableOpacity, Text, StyleSheet, } from 'react-native';
 import {
     BleError,
@@ -45,6 +45,13 @@ export const UseBLE = () => {
 
     const [allDevices, setAllDevices] = useState<Device[]>([]);
     const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
+    const [sendItemToRemoveList, setSendItemToRemoveList] = useState<boolean>(false);
+
+    const isScanToRemoveRef = useRef(isScanToRemove)
+
+    useEffect(() => {
+        isScanToRemoveRef.current = isScanToRemove;
+    }, [isScanToRemove])
 
     // const [cartList, setProductList] = useState<ItemData[]>([]);
     // const [newProduct, setNewProduct] = useState<ProductData | null>(null);
@@ -183,7 +190,7 @@ export const UseBLE = () => {
                             let scannedItem: ItemData = { id: uid, name: newProduct.name, price: newProduct.price.toString(), aisle: newProduct.aisle };
 
                             // check if we are scanning to add or remove items
-                            if (!isScanToRemove) {
+                            if (!isScanToRemoveRef.current) {
                                 if (addToCart) addToCart(scannedItem);
                                 else console.log("no addToCart");
                             } else {

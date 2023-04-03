@@ -8,20 +8,22 @@ import {
     View,
 } from 'react-native';
 import { Modal } from 'react-native';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
 import { ItemData } from './UseBLE';
 import { Item } from './CartProductList';
 import { ProductListContext } from '../../utils/ProductListContext';
 
 export const RemoveProduct = () => {
     const { cartList, removeList, isScanToRemove, setIsScanToRemove, addToCart, addToRemoveList, removeFromCart, clearCartList, clearRemoveList } = useContext(ProductListContext);
-    // const [removeList, setRemoveList] = useState<ItemData[]>([]);
     const [isProductRemoveModalVisible, setIsProductRemoveModalVisible] = useState<boolean>(false);
+
+    // const isScanToRemoveRef = useRef(isScanToRemove);
 
     const openProductRemoveModal = () => {
         if (setIsScanToRemove) setIsScanToRemove(true);
         else console.log("no setIsScanToRemove");
 
+        // console.log("test " + isScanToRemoveRef.current);
         setIsProductRemoveModalVisible(true);
     };
 
