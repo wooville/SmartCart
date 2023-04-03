@@ -1,20 +1,24 @@
 import React, { useState } from 'react';
-import { ImageBackground, View, Text, StyleSheet, TouchableOpacity, TextInput, Platform } from 'react-native';
-
-import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../RootStackParams';
-type testScreenProp = StackNavigationProp<RootStackParamList, 'Test'>;
-
+import {View, Text, Button, StyleSheet, SafeAreaView, Image, TouchableOpacity} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {RootStackParamList} from '../RootStackParams';
+import { TextInput } from 'react-native-gesture-handler';
 
 const API_URL = 'http://smartcartbeanstalk-env.eba-3jmpa3xe.us-east-2.elasticbeanstalk.com/auth';
 
-const TestScreen = () => {
-    const navigation = useNavigation<testScreenProp>();
 
-    const [email, setEmail] = useState('');
-    const [name, setName] = useState('');
-    const [password, setPassword] = useState('');
+type authoffScreenProp = StackNavigationProp<RootStackParamList, 'Test'>;
+const Separator = () => <View style={styles.separator} />;
+const Separator2 = () => <View style={styles.separator2} />;
+
+
+
+function AuthScreen() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const navigation = useNavigation<authoffScreenProp>();
 
     const [isError, setIsError] = useState(false);
     const [message, setMessage] = useState('');
@@ -51,10 +55,9 @@ const TestScreen = () => {
     const onSubmitHandler = () => {
         const payload = {
             email,
-            name,
             password,
         };
-        fetch(`${API_URL}/${isLogin ? 'login' : 'signup'}`, {
+        fetch(`${API_URL}/${'signup'}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -87,105 +90,92 @@ const TestScreen = () => {
         return status + message;
     }
 
-    return (
-        // <ImageBackground source={require('../public/images/gradient-back.jpeg')} style={styles.image}>
-        <View style={styles.card}>
-            <Text style={styles.heading}>{isLogin ? 'Login' : 'Signup'}</Text>
-            <View style={styles.form}>
-                <View style={styles.inputs}>
-                    <TextInput style={styles.input} placeholder="Email" autoCapitalize="none" onChangeText={setEmail}></TextInput>
-                    {!isLogin && <TextInput style={styles.input} placeholder="Name" onChangeText={setName}></TextInput>}
-                    <TextInput secureTextEntry={true} style={styles.input} placeholder="Password" onChangeText={setPassword}></TextInput>
-                    <Text style={[styles.message, { color: isError ? 'red' : 'green' }]}>{message ? getMessage() : null}</Text>
-                    <TouchableOpacity style={styles.button} onPress={onSubmitHandler}>
-                        <Text style={styles.buttonText}>Done</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.buttonAlt} onPress={onChangeHandler}>
-                        <Text style={styles.buttonAltText}>{isLogin ? 'Sign Up' : 'Log In'}</Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
-        </View>
-        // </ImageBackground>
-    );
-};
+  return (
+
+    <View style={{flex: 1, alignItems: 'center', justifyContent: 'center',   backgroundColor: '#ddf8d7',}}>
+      <Text style={styles.title}> Smart Cart</Text>
+      <TextInput style={styles.button} placeholder="example@mcmaster.ca" onChangeText={setEmail}></TextInput>
+      <TextInput style={styles.button} placeholder="Password" onChangeText={setPassword}></TextInput>
+     
+     
+     
+
+    <TouchableOpacity style={styles.nextbutton} onPress={onSubmitHandler}>
+      <Text style={styles.buttontext}> Login</Text>
+
+     
+        </TouchableOpacity>
+          
+    <Separator2 />
+    <Text style={[styles.buttontext, { color: isError ? 'red' : 'green' }]}>{message ? getMessage() : null}</Text>
+
+
+    <TouchableOpacity style={styles.nextbutton} onPress={() => navigation.navigate('Test')}>
+      <Text style={styles.text}> Sign Up</Text>  
+    </TouchableOpacity>
+
+    <Separator2 />
+
+
+
+    </View>
+  );
+
+  
+
+  
+}
 
 const styles = StyleSheet.create({
-    image: {
-        flex: 1,
-        width: '100%',
-        alignItems: 'center',
-    },
-    card: {
-        flex: 1,
-        backgroundColor: 'rgba(255, 255, 255, 0.4)',
-        width: '80%',
-        marginTop: '40%',
-        borderRadius: 20,
-        maxHeight: 380,
-        paddingBottom: '30%',
-    },
-    heading: {
-        fontSize: 30,
-        fontWeight: 'bold',
-        marginLeft: '10%',
-        marginTop: '5%',
-        marginBottom: '30%',
-        color: 'black',
-    },
-    form: {
-        flex: 1,
-        justifyContent: 'space-between',
-        paddingBottom: '5%',
-    },
-    inputs: {
-        width: '100%',
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingTop: '10%',
-    },
-    input: {
-        width: '80%',
-        borderBottomWidth: 1,
-        borderBottomColor: 'black',
-        paddingTop: 10,
-        fontSize: 16,
-        minHeight: 40,
-    },
-    button: {
-        width: '80%',
-        backgroundColor: 'black',
-        height: 40,
-        borderRadius: 50,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginVertical: 5,
-    },
-    buttonText: {
-        color: 'white',
-        fontSize: 16,
-        fontWeight: '400'
-    },
-    buttonAlt: {
-        width: '80%',
-        borderWidth: 1,
-        height: 40,
-        borderRadius: 50,
-        borderColor: 'black',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginVertical: 5,
-    },
-    buttonAltText: {
-        color: 'black',
-        fontSize: 16,
-        fontWeight: '400',
-    },
-    message: {
-        fontSize: 16,
-        marginVertical: '5%',
-    },
+  button: {
+    width: '75%',
+    backgroundColor: 'white',
+    height: 45,
+    borderRadius: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 10,
+}, 
+separator: {
+  marginVertical: 5,
+  
+},
+separator2: {
+  marginVertical: 3,
+  
+},
+
+title: {
+  marginVertical: 8,
+  fontSize:28,
+  fontWeight: 'bold',
+  
+
+},
+buttontext: {
+  marginVertical:5,
+  fontSize:18,
+  color: 'white'
+  
+
+},
+nextbutton: {
+  width: '75%',
+  backgroundColor: '#004b75',
+  height: 35,
+  borderRadius: 20,
+  justifyContent: 'center',
+  alignItems: 'center',
+  marginVertical: 2,
+},
+text: {
+  marginVertical:3,
+  fontSize:18,
+  color: 'white'
+  
+
+}
 });
 
-export default TestScreen;
+
+export default AuthScreen;

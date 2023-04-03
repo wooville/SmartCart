@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import {View, Text, Button, StyleSheet, SafeAreaView, Image, TouchableOpacity} from 'react-native';
+import {View, Text, Button, StyleSheet, SafeAreaView, Image, TouchableOpacity, Modal} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList} from '../RootStackParams';
@@ -16,20 +16,13 @@ const Separator2 = () => <View style={styles.separator2} />;
 
 function AuthScreen() {
   const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
   const [password, setPassword] = useState('');
-
+  const [isModalVisible, setIsModalVisible]=useState(false);
+  const [message, setMessage] = useState('');
   const navigation = useNavigation<authScreenProp>();
 
-    const [isError, setIsError] = useState(false);
-    const [message, setMessage] = useState('');
-    const [isLogin, setIsLogin] = useState(true);
-
-    const onChangeHandler = () => {
-        setIsLogin(!isLogin);
-        setMessage('');
-    };
-
-    const onLoggedIn = (token: any) => {
+        const LogTok = (token: any) => {
         fetch(`${API_URL}/private`, {
             method: 'GET',
             headers: {
@@ -41,7 +34,6 @@ function AuthScreen() {
                 try {
                     const jsonRes = await res.json();
                     if (res.status === 200) {
-                        setMessage(jsonRes.message);
                     }
                 } catch (err) {
                     console.log(err);
@@ -52,8 +44,8 @@ function AuthScreen() {
             });
     }
 
-    const onSubmitHandler = () => {
-        const payload = {
+    const login = () => {
+        const userInfo = {
             email,
             password,
         };
@@ -62,19 +54,16 @@ function AuthScreen() {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(payload),
+            body: JSON.stringify(userInfo),
         })
             .then(async res => {
                 try {
                     const jsonRes = await res.json();
                     if (res.status !== 200) {
-                        setIsError(true);
                         setMessage(jsonRes.message);
                     } else {
-                        onLoggedIn(jsonRes.token);
-                        setIsError(false);
-                        setMessage(jsonRes.message);
                         navigation.navigate('Main');
+                        LogTok(jsonRes.token);
                     }
                 } catch (err) {
                     console.log(err);
@@ -84,43 +73,96 @@ function AuthScreen() {
                 console.log(err);
             });
     };
+    const SignUp = () => {
+      const userInfo = {
+          email,
+          password,
+      };
+      fetch(`${API_URL}/${'signup'}`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(userInfo),
+      })
+          .then(async res => {
+              try {
+                  const jsonRes = await res.json();
+                  if (res.status !== 200) {
+                      
+                      setMessage(jsonRes.message);
+                  } else {
+                      navigation.navigate('Auth');
+                      LogTok(jsonRes.token);
+                      setMessage(jsonRes.message);
+                      setIsModalVisible(false)
+                  }
+              } catch (err) {
+                  console.log(err);
+              };
+          })
+          .catch(err => {
+              console.log(err);
+          });
+  };
 
-    const getMessage = () => {
-        const status = isError ? `Error: ` : `Success: `;
-        return status + message;
-    }
+  const showModal=()=>{
+    setIsModalVisible(true)
+
+  }
+
+   
 
   return (
 
+    
     <View style={{flex: 1, alignItems: 'center', justifyContent: 'center',   backgroundColor: '#ddf8d7',}}>
-      <Text style={styles.title}> Smart Cart</Text>
-      <TextInput style={styles.button} placeholder="example@mcmaster.ca" onChangeText={setEmail}></TextInput>
-      <TextInput style={styles.button} placeholder="Password" onChangeText={setPassword}></TextInput>
-     
-     
-     
+      <Image
+      style={styles.logo}
+      source={require('../../assets/SmartCart_font.png')}
 
-    <TouchableOpacity style={styles.nextbutton} onPress={onSubmitHandler}>
+      />
+      
+      <TextInput style={styles.button} placeholder="example@email.com" onChangeText={setEmail}></TextInput>
+      <TextInput style={styles.button} secureTextEntry={true} placeholder="Password" onChangeText={setPassword}></TextInput>
+     
+      <TouchableOpacity style={styles.nextbutton} onPress={login}>
       <Text style={styles.buttontext}> Login</Text>
 
+      </TouchableOpacity>
+
+      <Modal animationType={"slide"} onRequestClose={() => { setIsModalVisible(false); }} visible={isModalVisible} >
      
+      <View style={{flex: 1, alignItems: 'center', justifyContent: 'center',   backgroundColor: '#ddf8d7',}}>
+
+        <Image
+        style={styles.logo}
+        source={require('../../assets/SmartCart_font.png')}
+        />
+        <TextInput style={styles.button} placeholder="Name" onChangeText={setName}></TextInput>
+        <TextInput style={styles.button} placeholder="example@email.com" onChangeText={setEmail}></TextInput>
+        <TextInput style={styles.button} secureTextEntry={true} placeholder="Password" onChangeText={setPassword}></TextInput>
+        <Text >{message}</Text>
+      
+        <TouchableOpacity style={styles.nextbutton} onPress={SignUp}>
+          <Text style={styles.text}> Sign Up</Text> 
         </TouchableOpacity>
-          
-    <Separator2 />
-    <Text style={[styles.buttontext, { color: isError ? 'red' : 'green' }]}>{message ? getMessage() : null}</Text>
+      </View>
+
+      
 
 
-    <TouchableOpacity style={styles.nextbutton} onPress={() => navigation.navigate('Main')}>
-      <Text style={styles.text}> Sign Up</Text>  
-    </TouchableOpacity>
-
-    <Separator2 />
-
-    <TouchableOpacity style={styles.nextbutton} onPress={() => navigation.navigate('Main')}>
-      <Text style={styles.buttontext}> Forgot Password?</Text>
-    </TouchableOpacity>
+      </Modal>
+    
+      <Separator2 />
+      <Text >{message}</Text>
 
 
+      <TouchableOpacity style={styles.nextbutton} onPress={showModal}>
+        <Text style={styles.text}> Sign Up</Text>  
+      </TouchableOpacity>
+
+    
     </View>
   );
 
@@ -135,8 +177,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     height: 45,
     borderRadius: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
     marginVertical: 10,
 }, 
 separator: {
@@ -167,17 +207,19 @@ nextbutton: {
   backgroundColor: '#004b75',
   height: 35,
   borderRadius: 20,
-  justifyContent: 'center',
-  alignItems: 'center',
   marginVertical: 2,
 },
 text: {
   marginVertical:3,
   fontSize:18,
   color: 'white'
-  
 
+},
+logo:{
+  width: 100,
+  height: 150
 }
+
 });
 
 
