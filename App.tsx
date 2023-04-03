@@ -16,7 +16,6 @@ import SearchScreen from './screens/search';
 
 import { RootStackParamList } from './screens/RootStackParams';
 
-
 const Stack = createStackNavigator<RootStackParamList>();
 
 const App = () => {
