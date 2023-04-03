@@ -14,7 +14,7 @@ import { Item } from './CartProductList';
 import { ProductListContext } from '../../utils/ProductListContext';
 
 export const RemoveProduct = () => {
-    const { cartList, removeList, isScanToRemove, setIsScanToRemove, addToCart, addToRemoveList, removeFromCart, clearCartList, clearRemoveList } = useContext(ProductListContext);
+    const { cartList, removeList, isScanToRemove, setIsScanToRemove, addToCart, addToRemoveList, removeListFromCart, clearCartList, clearRemoveList } = useContext(ProductListContext);
     const [isProductRemoveModalVisible, setIsProductRemoveModalVisible] = useState<boolean>(false);
 
     // const isScanToRemoveRef = useRef(isScanToRemove);
@@ -38,8 +38,8 @@ export const RemoveProduct = () => {
     };
 
     const confirmProductRemoveModal = () => {
-        if (removeFromCart) removeFromCart();
-        else console.log("no removeFromCart");
+        if (removeListFromCart) removeListFromCart();
+        else console.log("no removeListFromCart");
 
         if (setIsScanToRemove) setIsScanToRemove(false);
         else console.log("no setIsScanToRemove");

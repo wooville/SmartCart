@@ -21,7 +21,7 @@ export const Item = ({ name, price, aisle }: ItemProps) => (
 );
 
 export const CartProductList = () => {
-    const { cartList, removeList, isScanToRemove, setIsScanToRemove, addToCart, addToRemoveList, removeFromCart, clearCartList, clearRemoveList } = useContext(ProductListContext);
+    const { cartList, removeList, isScanToRemove, setIsScanToRemove, addToCart, addToRemoveList, removeListFromCart, clearCartList, clearRemoveList } = useContext(ProductListContext);
 
     const sumTotal = cartList.reduce((acc, next) => {
         return acc + parseFloat(next.price)

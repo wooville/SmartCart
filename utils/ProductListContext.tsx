@@ -5,18 +5,23 @@ export type ItemData = { id: string, name: string, price: string, aisle: string 
 interface IProductContext {
     cartList: ItemData[];
     removeList: ItemData[];
+    shoppingList: ItemData[];
     isScanToRemove: boolean;
     setIsScanToRemove?: (bool: boolean) => void;
     addToCart?: (item: ItemData) => void;
     addToRemoveList?: (item: ItemData) => void;
-    removeFromCart?: () => void;
+    addToShoppingList?: (item: ItemData) => void;
+    removeListFromCart?: () => void;
+    removeItemFromShoppingList?: (item: ItemData) => void;
     clearCartList?: () => void;
     clearRemoveList?: () => void;
+    clearShoppingList?: () => void;
 }
 
 const defaultState = {
     cartList: [],
     removeList: [],
+    shoppingList: [],
     isScanToRemove: false,
 };
 
@@ -30,25 +35,35 @@ interface Props {
 }
 
 const ProductListProvider: FC<Props> = ({ children }) => {
+    const [shoppingList, setShoppingList] = useState<ItemData[]>(defaultState.shoppingList);
     const [cartList, setCartList] = useState<ItemData[]>(defaultState.cartList);
     const [removeList, setRemoveList] = useState<ItemData[]>(defaultState.removeList);
     const [isScanToRemove, setIsScanToRemove] = useState<boolean>(defaultState.isScanToRemove);
 
     const cartListRef = useRef(cartList)
     const removeListRef = useRef(removeList)
+    const shoppingListRef = useRef(removeList)
 
     useEffect(() => {
         cartListRef.current = cartList;
         removeListRef.current = removeList;
-    }, [cartList, removeList])
+        shoppingListRef.current = shoppingList;
+    }, [cartList, removeList, shoppingList])
 
     const isDuplicateItem = (items: ItemData[], nextItem: ItemData) =>
         items.findIndex(item => nextItem.id === item.id) > -1;
 
-
     const addToCart = (item: ItemData) => {
         if (!isDuplicateItem(cartListRef.current, item)) {
             setCartList(prev => {
+                return [...prev, item];
+            });
+        }
+    }
+
+    const addToShoppingList = (item: ItemData) => {
+        if (!isDuplicateItem(shoppingListRef.current, item)) {
+            setShoppingList(prev => {
                 return [...prev, item];
             });
         }
@@ -63,7 +78,7 @@ const ProductListProvider: FC<Props> = ({ children }) => {
     }
 
     // remove all the items common between cartList and removeList from cartList
-    const removeFromCart = () => {
+    const removeListFromCart = () => {
         // setCartList(cartList.filter(val => !removeList.includes(val)));
 
         let newCartList = cartList
@@ -78,6 +93,13 @@ const ProductListProvider: FC<Props> = ({ children }) => {
         clearRemoveList();
     }
 
+    const removeItemFromShoppingList = (item: ItemData) => {
+        const index = shoppingList.indexOf(item, 0);
+        if (index > -1) {
+            shoppingList.splice(index, 1);
+        }
+    }
+
     const clearCartList = () => {
         setCartList([]);
     }
@@ -86,8 +108,12 @@ const ProductListProvider: FC<Props> = ({ children }) => {
         setRemoveList([]);
     }
 
+    const clearShoppingList = () => {
+        setShoppingList([]);
+    }
+
     return (
-        <ProductListContext.Provider value={{ cartList: cartList, removeList: removeList, isScanToRemove: isScanToRemove, setIsScanToRemove: setIsScanToRemove, addToCart: addToCart, addToRemoveList: addToRemoveList, removeFromCart: removeFromCart, clearCartList: clearCartList, clearRemoveList: clearRemoveList }}>
+        <ProductListContext.Provider value={{ cartList: cartList, removeList: removeList, shoppingList: shoppingList, isScanToRemove: isScanToRemove, setIsScanToRemove: setIsScanToRemove, addToCart: addToCart, addToRemoveList: addToRemoveList, addToShoppingList: addToShoppingList, removeListFromCart: removeListFromCart, removeItemFromShoppingList: removeItemFromShoppingList, clearCartList: clearCartList, clearRemoveList: clearRemoveList, clearShoppingList: clearShoppingList }}>
             {children}
         </ProductListContext.Provider>
     );

@@ -41,7 +41,7 @@ export type ItemData = { id: string, name: string, price: string, aisle: string 
 export const UseBLE = () => {
     // const cartListInterface = useContext(productContext);
     const [isDeviceModalVisible, setIsDeviceModalVisible] = useState<boolean>(false);
-    const { cartList, removeList, isScanToRemove, setIsScanToRemove, addToCart, addToRemoveList, removeFromCart, clearCartList, clearRemoveList } = useContext(ProductListContext);
+    const { cartList, removeList, isScanToRemove, setIsScanToRemove, addToCart, addToRemoveList, removeListFromCart, clearCartList, clearRemoveList } = useContext(ProductListContext);
 
     const [allDevices, setAllDevices] = useState<Device[]>([]);
     const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
@@ -116,9 +116,6 @@ export const UseBLE = () => {
 
     const isDuplicateDevice = (devices: Device[], nextDevice: Device) =>
         devices.findIndex(device => nextDevice.id === device.id) > -1;
-
-    const isDuplicateItem = (items: ItemData[], nextItem: ItemData) =>
-        items.findIndex(item => nextItem.id === item.id) > -1;
 
     const scanForPeripherals = () =>
         bleManager.startDeviceScan(null, null, (error, device) => {
