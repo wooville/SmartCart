@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {Component} from 'react';
 import { createContext, useContext, useState } from 'react';
 import {View, Text, Button, TextInput} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
@@ -10,16 +10,36 @@ import {
   SafeAreaView,
   StyleSheet,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
+import FlashMessage from "react-native-flash-message";
+import {showMessage, hideMessage} from "react-native-flash-message";
 
 type ItemData = { id: string, name: string, price: string, aisle: string, tags: string};
 type ItemProps = { name: string, price: string, aisle: string };
 
+const onPress = () => {
+  showMessage({
+    message: 'Item Added to Shopping List',
+    type: 'info',
+  });
+}
+
 const Item = ({ name, price, aisle }: ItemProps) => (
   <View style={styles.item}>
+    
     <Text style={styles.name}>{name}</Text>
-    <Text style={styles.aisle}>{aisle}</Text>
-    <Text style={styles.price}>{price}</Text>
+    <View style={[{flexDirection: 'row', alignItems:'center'}]}>
+      <View style={[{flex:1,flexDirection: 'row'}]}>
+        <TouchableOpacity style ={styles.button} onPress = {onPress}>
+          <Text style ={styles.buttonText}>Add to Cart</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={[{justifyContent:'space-evenly',marginVertical:10}]}>
+        <Text style={styles.aisle}>{aisle}</Text>
+        <Text style={styles.price}>{price}</Text>
+      </View>
+    </View>    
   </View>
 );
 
@@ -113,6 +133,7 @@ function SearchScreen() {
         />
         {/* {swipeListRender()} */}
     </View>
+    <FlashMessage position="top" />
     </SafeAreaView>
   );
 
@@ -120,7 +141,7 @@ function SearchScreen() {
   const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: '#f8fff8',
+      backgroundColor: 'white',
     },
     // switchContainer: {
     //   flexDirection: 'row',
@@ -141,7 +162,7 @@ function SearchScreen() {
       // bottom: 0,
       flexDirection: 'column',
       // justifyContent: 'space-between',
-      backgroundColor: '#00CC66',
+      backgroundColor: '#F1FCF6',
       padding: 20,
       marginVertical: 8,
       marginHorizontal: 16,
@@ -156,17 +177,18 @@ function SearchScreen() {
     },
     name: {
       fontSize: 20,
+      color: 'black',
     },
     price: {
       fontSize: 18,
-      flexDirection: 'column',
       textAlign: 'right',
       fontWeight: '700',
+      color: 'black',
     },
     aisle: {
       fontSize: 18,
-      flexDirection: 'column',
       textAlign: 'right',
+      color: 'black',
     },
     BLEDeviceTitleWrapper: {
       flex: 1,
@@ -185,7 +207,7 @@ function SearchScreen() {
       marginTop: 15,
     },
     ctaButton: {
-      backgroundColor: '#54589A',
+      backgroundColor: '#008959',
       justifyContent: 'center',
       alignItems: 'center',
       height: 50,
@@ -199,7 +221,7 @@ function SearchScreen() {
       color: 'white',
     },
     cartTotalButton: {
-      backgroundColor: '#54589A',
+      backgroundColor: '#008959',
       justifyContent: 'center',
       alignItems: 'center',
       height: 50,
@@ -213,5 +235,21 @@ function SearchScreen() {
       borderWidth: 1,
       padding: 10,
     },
+    button: {
+      backgroundColor: '#008959',
+      justifyContent: 'center',
+      alignItems: 'flex-start',
+      height: 30,
+      width: 90,
+      marginHorizontal: '1%',
+      marginBottom: 6,
+      paddingHorizontal: 8,
+      paddingVertical: 6,
+    },
+    buttonText: {
+      fontSize: 14,
+      fontWeight: 'bold',
+      color: 'white',
+    }
   });
 export default SearchScreen;
