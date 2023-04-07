@@ -9,15 +9,34 @@ import {
 } from 'react-native';
 import { Modal } from 'react-native';
 import React, { useContext, useState, useEffect, useRef } from 'react';
-import { ItemData } from './UseBLE';
 import { Item } from './CartProductList';
 import { ProductListContext } from '../../utils/ProductListContext';
+
+import { DisplayData } from './CartProductList';
+import { ItemData } from '../../utils/ProductListContext';
 
 export const RemoveProduct = () => {
     const { cartList, removeList, isScanToRemove, setIsScanToRemove, addToCart, addToRemoveList, removeListFromCart, clearCartList, clearRemoveList } = useContext(ProductListContext);
     const [isProductRemoveModalVisible, setIsProductRemoveModalVisible] = useState<boolean>(false);
+    const [displayList, setDisplayList] = useState<DisplayData[]>([]);
 
-    // const isScanToRemoveRef = useRef(isScanToRemove);
+    useEffect(() => {
+        // rebuild displayList whenever cartList changes
+        let newDisplayList: DisplayData[] = []
+        const iterator = removeList.values();
+
+        for (const value of iterator) {
+            const displayItem = newDisplayList.find(displayItem => value.refid === displayItem.refid)
+            if (displayItem != undefined) {
+                displayItem.quantity = displayItem.quantity + 1;
+            } else {
+                const newItem = { refid: value.refid, name: value.name, price: value.price, aisle: value.aisle, quantity: 1 }
+                newDisplayList.push(newItem);
+            }
+        }
+
+        setDisplayList(newDisplayList);
+    }, [removeList])
 
     const openProductRemoveModal = () => {
         if (setIsScanToRemove) setIsScanToRemove(true);
@@ -61,9 +80,9 @@ export const RemoveProduct = () => {
                 </View>
 
                 <FlatList
-                    data={removeList}
-                    renderItem={({ item }) => <Item name={item.name} price={item.price} aisle={item.aisle} />}
-                    keyExtractor={item => item.id}
+                    data={displayList}
+                    renderItem={({ item }) => <Item name={item.name} price={item.price} aisle={item.aisle} quantity={item.quantity} />}
+                    keyExtractor={item => item.refid}
                 />
 
                 <TouchableOpacity

@@ -12,7 +12,7 @@ import DeviceInfo from 'react-native-device-info';
 // import { productContext, ProductListProvider } from './utils/ProductListProvider';
 import { ProductListContext } from '../../utils/ProductListContext';
 import DeviceModal from '../../DeviceConnectionModal';
-
+import { ItemData } from '../../utils/ProductListContext';
 
 import { atob } from 'react-native-quick-base64';
 
@@ -35,8 +35,6 @@ interface ProductData {
     createdAt: string
     updatedAt: string
 };
-
-export type ItemData = { id: string, name: string, price: string, aisle: string };
 
 export const UseBLE = () => {
     // const cartListInterface = useContext(productContext);
@@ -186,8 +184,8 @@ export const UseBLE = () => {
                         // console.log(product);
 
                         // if uid is not already in list and there is a new product / server response
-                        if (!cartList.some(e => e.id === uid) && newProduct != null) {
-                            let scannedItem: ItemData = { id: uid, name: newProduct.name, price: newProduct.price.toString(), aisle: newProduct.aisle };
+                        if (!cartList.some(e => e.uid === uid) && newProduct != null) {
+                            let scannedItem: ItemData = { uid: uid, refid: refid, name: newProduct.name, price: newProduct.price.toString(), aisle: newProduct.aisle };
 
                             // check if we are scanning to add or remove items
                             if (!isScanToRemoveRef.current) {

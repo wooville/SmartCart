@@ -1,6 +1,6 @@
 import { createContext, FC, useState, useRef, useEffect } from 'react';
 
-export type ItemData = { id: string, name: string, price: string, aisle: string };
+export type ItemData = { uid: string, refid: string, name: string, price: string, aisle: string };
 
 interface IProductContext {
     cartList: ItemData[];
@@ -51,7 +51,7 @@ const ProductListProvider: FC<Props> = ({ children }) => {
     }, [cartList, removeList, shoppingList])
 
     const isDuplicateItem = (items: ItemData[], nextItem: ItemData) =>
-        items.findIndex(item => nextItem.id === item.id) > -1;
+        items.findIndex(item => nextItem.uid === item.uid) > -1;
 
     const addToCart = (item: ItemData) => {
         if (!isDuplicateItem(cartListRef.current, item)) {
@@ -84,7 +84,7 @@ const ProductListProvider: FC<Props> = ({ children }) => {
         let newCartList = cartList
 
         for (var i = 0, len = removeList.length; i < len; i++) {
-            var ItemIndex = newCartList.findIndex(item => item.id === removeList[i].id);
+            var ItemIndex = newCartList.findIndex(item => item.uid === removeList[i].uid);
 
             newCartList.splice(ItemIndex, 1)
         }

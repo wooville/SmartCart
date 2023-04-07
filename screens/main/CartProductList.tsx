@@ -1,4 +1,4 @@
-import { createContext, useContext, FC, useState } from 'react';
+import { createContext, useContext, FC, useState, useEffect, useRef } from 'react';
 import {
     Dimensions,
     FlatList,
@@ -8,20 +8,46 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
+import { ItemData } from '../../utils/ProductListContext';
 import { ProductListContext } from '../../utils/ProductListContext';
 
-type ItemProps = { name: string, price: string, aisle: string };
+type ItemProps = { name: string, price: string, aisle: string, quantity: number };
+export type DisplayData = { refid: string, name: string, price: string, aisle: string, quantity: number }
 
-export const Item = ({ name, price, aisle }: ItemProps) => (
+export const Item = ({ name, price, aisle, quantity }: ItemProps) => (
     <View style={styles.item}>
         <Text style={styles.name}>{name}</Text>
         <Text style={styles.aisle}>{aisle}</Text>
         <Text style={styles.price}>{price}</Text>
+        <Text style={styles.quantity}>{quantity}</Text>
     </View>
 );
 
 export const CartProductList = () => {
     const { cartList, removeList, isScanToRemove, setIsScanToRemove, addToCart, addToRemoveList, removeListFromCart, clearCartList, clearRemoveList } = useContext(ProductListContext);
+    const [displayList, setDisplayList] = useState<DisplayData[]>([])
+
+    useEffect(() => {
+        // rebuild displayList whenever cartList changes
+        let newDisplayList: DisplayData[] = []
+        const iterator = cartList.values();
+
+        for (const value of iterator) {
+            const displayItem = newDisplayList.find(displayItem => value.refid === displayItem.refid)
+            if (displayItem != undefined) {
+                displayItem.quantity = displayItem.quantity + 1;
+            } else {
+                const newItem = { refid: value.refid, name: value.name, price: value.price, aisle: value.aisle, quantity: 1 }
+                newDisplayList.push(newItem);
+            }
+        }
+
+        setDisplayList(newDisplayList);
+    }, [cartList, removeList])
+
+    // convert the cartList, which indexes each item individually by uid, into a list which groups the items by database ref ID to display them in quantities
+    // const groupedList: DisplayData[] = cartList.;
+    // setDisplayList(groupedList);
 
     const sumTotal = cartList.reduce((acc, next) => {
         return acc + parseFloat(next.price)
@@ -30,9 +56,9 @@ export const CartProductList = () => {
     return (
         <>
             <FlatList
-                data={cartList}
-                renderItem={({ item }) => <Item name={item.name} price={item.price} aisle={item.aisle} />}
-                keyExtractor={item => item.id}
+                data={displayList}
+                renderItem={({ item }) => <Item name={item.name} price={item.price} aisle={item.aisle} quantity={item.quantity} />}
+                keyExtractor={item => item.refid}
             />
             <View
                 style={styles.ctaButton}>
@@ -71,6 +97,11 @@ const styles = StyleSheet.create({
         fontWeight: '700',
     },
     aisle: {
+        fontSize: 18,
+        flexDirection: 'column',
+        textAlign: 'right',
+    },
+    quantity: {
         fontSize: 18,
         flexDirection: 'column',
         textAlign: 'right',
