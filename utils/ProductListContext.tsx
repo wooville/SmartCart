@@ -42,7 +42,7 @@ const ProductListProvider: FC<Props> = ({ children }) => {
 
     const cartListRef = useRef(cartList)
     const removeListRef = useRef(removeList)
-    const shoppingListRef = useRef(removeList)
+    const shoppingListRef = useRef(shoppingList)
 
     useEffect(() => {
         cartListRef.current = cartList;
@@ -62,11 +62,9 @@ const ProductListProvider: FC<Props> = ({ children }) => {
     }
 
     const addToShoppingList = (item: ItemData) => {
-        if (!isDuplicateItem(shoppingListRef.current, item)) {
-            setShoppingList(prev => {
-                return [...prev, item];
-            });
-        }
+        setShoppingList(prev => {
+            return [...prev, item];
+        });
     }
 
     const addToRemoveList = (item: ItemData) => {

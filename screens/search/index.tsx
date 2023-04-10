@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useRef, useEffect } from 'react';
 import {View, Text, Button, TextInput} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
@@ -14,96 +14,15 @@ import {
 } from 'react-native';
 import FlashMessage from "react-native-flash-message";
 import {showMessage, hideMessage} from "react-native-flash-message";
+import { ProductListContext, ProductListProvider } from '../../utils/ProductListContext';
+import { SearchShop } from './SearchShop';
 
-type ItemData = { id: string, name: string, price: string, aisle: string, tags: string};
-type ItemProps = { name: string, price: string, aisle: string };
-
-const onPress = () => {
-  showMessage({
-    message: 'Item Added to Shopping List',
-    type: 'info',
-  });
-}
-
-const Item = ({ name, price, aisle }: ItemProps) => (
-  <View style={styles.item}>
-    
-    <Text style={styles.name}>{name}</Text>
-    <View style={[{flexDirection: 'row', alignItems:'center'}]}>
-      <View style={[{flex:1,flexDirection: 'row'}]}>
-        <TouchableOpacity style ={styles.button} onPress = {onPress}>
-          <Text style ={styles.buttonText}>Add to Cart</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={[{justifyContent:'space-evenly',marginVertical:10}]}>
-        <Text style={styles.aisle}>{aisle}</Text>
-        <Text style={styles.price}>{price}</Text>
-      </View>
-    </View>    
-  </View>
-);
-
-interface ProductData {
-  id: number
-  name: string
-  price: number
-  aisle: string
-  tags: string
-  createdAt: string
-  updatedAt: string
-};
-
-const API_URL = 'http://smartcartbeanstalk-env.eba-3jmpa3xe.us-east-2.elasticbeanstalk.com/product';
+type ItemProps = { id: string, name: string, price: string, aisle: string };
 
 type SearchScreenProp = StackNavigationProp<RootStackParamList, 'Search'>;
 
-function SearchScreen() {
-
-  const [productList, setProductList] = useState<ItemData[]>([]);
-  
+function SearchScreen() {  
   const navigation = useNavigation<SearchScreenProp>();
-
-  const getList = () => {
-
-    fetch(`${API_URL}/`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-    },
-    
-    })
-
-    .then(async res => {
-      try {
-          const jsonRes = await res.json();
-          if (res.status === 200) {
-              let allProducts: ProductData[] = await JSON.parse(JSON.stringify(jsonRes.data));
-              // console.log(product);
-
-              // if uid is not already in list and there is a new product / server response
-
-              let displayList: ItemData[] = [];
-              for (let i = 0; i<allProducts.length; i++) {
-                  let newItem: ItemData = { id: allProducts[i].id.toString(), name: allProducts[i].name, price: allProducts[i].price.toString(), aisle: allProducts[i].aisle , tags: allProducts[i].tags};
-
-                  displayList.push(newItem);
-              }
-              
-              const filteredList = displayList.filter((prod) => prod.tags.includes(text.toLowerCase()) || prod.name.includes(text))
-              filteredList.sort((a, b) => a.name.localeCompare(b.name))
-
-              setProductList(filteredList);
-          }
-      } catch (err) {
-          console.log(err);
-      };
-  })
-  .catch(err => {
-      console.log(err);
-  });
-  }  
-    
-  const [text, onChangeText] = React.useState('');
 
   return (
     // <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
@@ -111,28 +30,10 @@ function SearchScreen() {
     //   <Button title="Login" onPress={() => navigation.navigate('Main')} />
     // </View>
     <SafeAreaView style={styles.container}>
-      <TextInput
-        style={styles.input}
-        placeholder = {"Enter Search Here..."}
-        placeholderTextColor = {"black"}
-        onChangeText={onChangeText}
-        value={text}
-      />
-    <TouchableOpacity
-        onPress={getList}
-        style={styles.ctaButton}>
-        <Text style={styles.ctaButtonText}>
-          {'Search'}
-        </Text>
-      </TouchableOpacity>
-    <View style={styles.container}>
-        <FlatList
-          data={productList}
-          renderItem={({ item }) => <Item name={item.name} price={item.price} aisle={item.aisle} />}
-          keyExtractor={item => item.id}
-        />
-        {/* {swipeListRender()} */}
-    </View>
+      <ProductListProvider>
+        <SearchShop/>
+      </ProductListProvider>  
+    
     <FlashMessage position="top" />
     </SafeAreaView>
   );
