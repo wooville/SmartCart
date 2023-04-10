@@ -8,8 +8,10 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
-import { ItemData } from '../../utils/ProductListContext';
+import { ItemData, ProductData } from '../../utils/ProductListContext';
 import { ProductListContext } from '../../utils/ProductListContext';
+
+const API_URL = 'http://smartcartbeanstalk-env.eba-3jmpa3xe.us-east-2.elasticbeanstalk.com/product';
 
 type ItemProps = { name: string, price: string, aisle: string, quantity: number };
 export type DisplayData = { refid: string, name: string, price: string, aisle: string, quantity: number }
@@ -24,7 +26,7 @@ export const Item = ({ name, price, aisle, quantity }: ItemProps) => (
 );
 
 export const CartProductList = () => {
-    const { cartList, removeList, isScanToRemove, setIsScanToRemove, addToCart, addToRemoveList, removeListFromCart, clearCartList, clearRemoveList } = useContext(ProductListContext);
+    const { setAllProductList, cartList, removeList, isScanToRemove, setIsScanToRemove, addToCart, addToRemoveList, removeListFromCart, clearCartList, clearRemoveList } = useContext(ProductListContext);
     const [displayList, setDisplayList] = useState<DisplayData[]>([])
 
     useEffect(() => {
@@ -44,7 +46,6 @@ export const CartProductList = () => {
 
         setDisplayList(newDisplayList);
     }, [cartList, removeList])
-
     // convert the cartList, which indexes each item individually by uid, into a list which groups the items by database ref ID to display them in quantities
     // const groupedList: DisplayData[] = cartList.;
     // setDisplayList(groupedList);

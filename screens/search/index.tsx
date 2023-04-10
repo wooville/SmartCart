@@ -17,18 +17,8 @@ import { showMessage, hideMessage } from "react-native-flash-message";
 import { ProductListContext, ProductListProvider } from '../../utils/ProductListContext';
 import { SearchShop } from './SearchShop';
 
-type ItemProps = { id: string, name: string, price: string, aisle: string };
-
-type SearchScreenProp = StackNavigationProp<RootStackParamList, 'Search'>;
-
 function SearchScreen() {
-  const navigation = useNavigation<SearchScreenProp>();
-
   return (
-    // <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-    //   <Text>Search Screen</Text>
-    //   <Button title="Login" onPress={() => navigation.navigate('Main')} />
-    // </View>
     <SafeAreaView style={styles.container}>
       <ProductListProvider>
         <SearchShop />

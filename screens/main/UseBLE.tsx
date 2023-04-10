@@ -39,7 +39,7 @@ interface ProductData {
 export const UseBLE = () => {
     // const cartListInterface = useContext(productContext);
     const [isDeviceModalVisible, setIsDeviceModalVisible] = useState<boolean>(false);
-    const { cartList, removeList, isScanToRemove, setIsScanToRemove, addToCart, addToRemoveList, removeListFromCart, clearCartList, clearRemoveList } = useContext(ProductListContext);
+    const { allProductList, cartList, removeList, isScanToRemove, setIsScanToRemove, addToCart, addToRemoveList, removeListFromCart, clearCartList, clearRemoveList } = useContext(ProductListContext);
 
     const [allDevices, setAllDevices] = useState<Device[]>([]);
     const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
@@ -47,11 +47,13 @@ export const UseBLE = () => {
 
     const isScanToRemoveRef = useRef(isScanToRemove)
     const cartListRef = useRef(cartList)
+    const allProductListRef = useRef(allProductList)
 
     useEffect(() => {
         isScanToRemoveRef.current = isScanToRemove;
         cartListRef.current = cartList;
-    }, [isScanToRemove, cartList])
+        allProductListRef.current = allProductList;
+    }, [isScanToRemove, cartList, allProductList])
 
     // const [cartList, setProductList] = useState<ItemData[]>([]);
     // const [newProduct, setNewProduct] = useState<ProductData | null>(null);
@@ -214,16 +216,33 @@ export const UseBLE = () => {
             console.log(error);
             return -1;
         } else if (!characteristic?.value) {
-            console.log('No Data was received');
+            console.log('No data was received');
             return -1;
         }
 
         const uid = atob(characteristic.value).substring(0, 12);                  // first half of recvd value
-        const refId = parseInt(atob(characteristic.value).substring(14, 16), 16);     // last half of received value (from hex to int)
+        const refid = parseInt(atob(characteristic.value).substring(14, 16), 16);     // last half of received value (from hex to int)
 
-        console.log(uid + "\n" + refId);
+        console.log(uid + "\n" + refid);
 
-        getProduct(refId, uid);
+        // const newProduct = allProductListRef.current.find(item => item.id === refid.toString());
+        // console.log(newProduct)
+
+        // if (!cartList.some(e => e.uid === uid) && newProduct) {
+        //     let scannedItem: ItemData = { uid: uid, refid: refid.toString(), name: newProduct.name, price: newProduct.price.toString(), aisle: newProduct.aisle };
+
+        //     // check if we are scanning to add or remove items
+        //     if (!isScanToRemoveRef.current) {
+        //         if (addToCart) addToCart(scannedItem);
+        //         else console.log("no addToCart");
+        //     }
+        //     if (isScanToRemoveRef.current) {
+        //         if (addToRemoveList) addToRemoveList(scannedItem);
+        //         else console.log("no addToRemoveList");
+        //     }
+        // }
+
+        getProduct(refid, uid);
     };
 
 

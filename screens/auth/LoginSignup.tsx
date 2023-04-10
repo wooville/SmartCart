@@ -29,9 +29,33 @@ export const LoginSignup = () => {
     const [password, setPassword] = useState('');
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [message, setMessage] = useState('');
-    const { userToken, setUserToken } = useContext(ProductListContext);
+    const { userToken, setUserToken, setShoppingList } = useContext(ProductListContext);
     const navigation = useNavigation<authScreenProp>();
 
+    const getShoppingList = (token: any) => {
+        fetch(`${API_URL}/private`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+            },
+        })
+            .then(async res => {
+                try {
+                    const jsonRes = await res.json();
+                    if (res.status === 200 && jsonRes.data) {
+
+                        if (setShoppingList) setShoppingList(jsonRes.data);
+                        else console.log("no setShoppingList");
+                    }
+                } catch (err) {
+                    console.log(err);
+                };
+            })
+            .catch(err => {
+                console.log(err);
+            });
+    }
 
     const login = () => {
         const userInfo = {
@@ -51,6 +75,7 @@ export const LoginSignup = () => {
                     if (res.status !== 200) {
                         setMessage(jsonRes.message);
                     } else {
+                        getShoppingList(jsonRes.token);
                         navigation.navigate('Main');
                         if (setUserToken) setUserToken(jsonRes.token);
                         else console.log("no setUserToken");

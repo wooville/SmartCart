@@ -35,7 +35,7 @@ const DeviceModalListItem: FC<DeviceModalListItemProps> = props => {
     <TouchableOpacity
       onPress={connectAndCloseModal}
       style={modalStyle.ctaButton}>
-      <Text style={modalStyle.ctaButtonText}>{item.item.name}</Text>
+      <Text style={modalStyle.ctaButtonText}>{"Shopping Cart 1"}</Text>
     </TouchableOpacity>
   );
 };
