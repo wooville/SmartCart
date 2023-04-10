@@ -7,12 +7,14 @@ interface IProductContext {
     removeList: ItemData[];
     shoppingList: ItemData[];
     isScanToRemove: boolean;
-    setIsScanToRemove?: (bool: boolean) => void;
+    userToken: string;
     addToCart?: (item: ItemData) => void;
     addToRemoveList?: (item: ItemData) => void;
     addToShoppingList?: (item: ItemData) => void;
     removeListFromCart?: () => void;
     removeItemFromShoppingList?: (item: ItemData) => void;
+    setIsScanToRemove?: (bool: boolean) => void;
+    setUserToken?: (token: string) => void;
     clearCartList?: () => void;
     clearRemoveList?: () => void;
     clearShoppingList?: () => void;
@@ -23,6 +25,7 @@ const defaultState = {
     removeList: [],
     shoppingList: [],
     isScanToRemove: false,
+    userToken: "",
 };
 
 // const [cartList, setCartList] = useState<ItemData[]>([]);
@@ -39,7 +42,9 @@ const ProductListProvider: FC<Props> = ({ children }) => {
     const [cartList, setCartList] = useState<ItemData[]>(defaultState.cartList);
     const [removeList, setRemoveList] = useState<ItemData[]>(defaultState.removeList);
     const [isScanToRemove, setIsScanToRemove] = useState<boolean>(defaultState.isScanToRemove);
+    const [userToken, setUserToken] = useState<string>(defaultState.userToken);
 
+    // use refs and useEffect to circumvent stale closure (ie always ensure up to date states)
     const cartListRef = useRef(cartList)
     const removeListRef = useRef(removeList)
     const shoppingListRef = useRef(removeList)
@@ -113,7 +118,7 @@ const ProductListProvider: FC<Props> = ({ children }) => {
     }
 
     return (
-        <ProductListContext.Provider value={{ cartList: cartList, removeList: removeList, shoppingList: shoppingList, isScanToRemove: isScanToRemove, setIsScanToRemove: setIsScanToRemove, addToCart: addToCart, addToRemoveList: addToRemoveList, addToShoppingList: addToShoppingList, removeListFromCart: removeListFromCart, removeItemFromShoppingList: removeItemFromShoppingList, clearCartList: clearCartList, clearRemoveList: clearRemoveList, clearShoppingList: clearShoppingList }}>
+        <ProductListContext.Provider value={{ cartList: cartList, removeList: removeList, shoppingList: shoppingList, isScanToRemove: isScanToRemove, userToken: userToken, setUserToken: setUserToken, setIsScanToRemove: setIsScanToRemove, addToCart: addToCart, addToRemoveList: addToRemoveList, addToShoppingList: addToShoppingList, removeListFromCart: removeListFromCart, removeItemFromShoppingList: removeItemFromShoppingList, clearCartList: clearCartList, clearRemoveList: clearRemoveList, clearShoppingList: clearShoppingList }}>
             {children}
         </ProductListContext.Provider>
     );

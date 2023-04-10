@@ -48,7 +48,6 @@ export const UseBLE = () => {
     const isScanToRemoveRef = useRef(isScanToRemove)
     const cartListRef = useRef(cartList)
 
-
     useEffect(() => {
         isScanToRemoveRef.current = isScanToRemove;
         cartListRef.current = cartList;
