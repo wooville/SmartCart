@@ -14,7 +14,7 @@ import { ProductListContext } from '../../utils/ProductListContext';
 
 import { DisplayData } from './CartProductList';
 import { ItemData } from '../../utils/ProductListContext';
-
+import { styles } from '../../styles/styles';
 export const RemoveProduct = () => {
     const { cartList, removeList, isScanToRemove, setIsScanToRemove, addToCart, addToRemoveList, removeListFromCart, clearCartList, clearRemoveList } = useContext(ProductListContext);
     const [isProductRemoveModalVisible, setIsProductRemoveModalVisible] = useState<boolean>(false);
@@ -96,7 +96,7 @@ export const RemoveProduct = () => {
             </Modal>
             <TouchableOpacity
                 onPress={openProductRemoveModal}
-                style={styles.ctaButton}
+                style={styles.removeProductButton}
             >
                 <Text style={styles.ctaButtonText}>
                     {'Remove Items'}
@@ -106,102 +106,102 @@ export const RemoveProduct = () => {
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#f8fff8',
-    },
-    // switchContainer: {
-    //   flexDirection: 'row',
-    //   justifyContent: 'center',
-    //   marginVertical: 50,
-    //   flexWrap: 'wrap',
-    // },
-    // switch: {
-    //   alignItems: 'center',
-    //   borderWidth: 1,
-    //   borderColor: 'black',
-    //   marginVertical: 2,
-    //   paddingVertical: 10,
-    //   width: Dimensions.get('window').width / 3,
-    // },
-    item: {
-        // position: 'absolute',
-        // bottom: 0,
-        flexDirection: 'column',
-        // justifyContent: 'space-between',
-        backgroundColor: '#00CC66',
-        padding: 20,
-        marginVertical: 8,
-        marginHorizontal: 16,
-        // height: 150,
-        // width: "90%",
-    },
-    rowBack: {
-        backgroundColor: '#eb4034',
-        padding: 20,
-        marginVertical: 8,
-        marginHorizontal: 16,
-    },
-    name: {
-        fontSize: 20,
-    },
-    price: {
-        fontSize: 18,
-        flexDirection: 'column',
-        textAlign: 'right',
-        fontWeight: '700',
-    },
-    aisle: {
-        fontSize: 18,
-        flexDirection: 'column',
-        textAlign: 'right',
-    },
-    BLEDeviceTitleWrapper: {
-        flex: 1,
-        // justifyContent: 'center',
-        alignItems: 'center',
-    },
-    BLEDeviceTitleText: {
-        fontSize: 30,
-        fontWeight: 'bold',
-        textAlign: 'center',
-        marginHorizontal: 20,
-        color: 'black',
-    },
-    BLEDeviceText: {
-        fontSize: 25,
-        marginTop: 15,
-    },
-    ctaButton: {
-        backgroundColor: '#54589A',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: 50,
-        marginHorizontal: 20,
-        marginBottom: 5,
-        borderRadius: 8,
-    },
-    ctaButtonText: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: 'white',
-    },
-    removeProductButton: {
-        backgroundColor: '#54589A',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: 50,
-        marginHorizontal: 20,
-        marginBottom: 5,
-        borderRadius: 8,
-    },
-    cartTotalButton: {
-        backgroundColor: '#54589A',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: 50,
-        marginBottom: 5,
-        borderRadius: 8,
-    },
-});
+// const styles = StyleSheet.create({
+//     container: {
+//         flex: 1,
+//         backgroundColor: '#f8fff8',
+//     },
+//     // switchContainer: {
+//     //   flexDirection: 'row',
+//     //   justifyContent: 'center',
+//     //   marginVertical: 50,
+//     //   flexWrap: 'wrap',
+//     // },
+//     // switch: {
+//     //   alignItems: 'center',
+//     //   borderWidth: 1,
+//     //   borderColor: 'black',
+//     //   marginVertical: 2,
+//     //   paddingVertical: 10,
+//     //   width: Dimensions.get('window').width / 3,
+//     // },
+//     item: {
+//         // position: 'absolute',
+//         // bottom: 0,
+//         flexDirection: 'column',
+//         // justifyContent: 'space-between',
+//         backgroundColor: '#00CC66',
+//         padding: 20,
+//         marginVertical: 8,
+//         marginHorizontal: 16,
+//         // height: 150,
+//         // width: "90%",
+//     },
+//     rowBack: {
+//         backgroundColor: '#eb4034',
+//         padding: 20,
+//         marginVertical: 8,
+//         marginHorizontal: 16,
+//     },
+//     name: {
+//         fontSize: 20,
+//     },
+//     price: {
+//         fontSize: 18,
+//         flexDirection: 'column',
+//         textAlign: 'right',
+//         fontWeight: '700',
+//     },
+//     aisle: {
+//         fontSize: 18,
+//         flexDirection: 'column',
+//         textAlign: 'right',
+//     },
+//     BLEDeviceTitleWrapper: {
+//         flex: 1,
+//         // justifyContent: 'center',
+//         alignItems: 'center',
+//     },
+//     BLEDeviceTitleText: {
+//         fontSize: 30,
+//         fontWeight: 'bold',
+//         textAlign: 'center',
+//         marginHorizontal: 20,
+//         color: 'black',
+//     },
+//     BLEDeviceText: {
+//         fontSize: 25,
+//         marginTop: 15,
+//     },
+//     ctaButton: {
+//         backgroundColor: '#008959',
+//         justifyContent: 'center',
+//         alignItems: 'center',
+//         height: 50,
+//         marginHorizontal: 20,
+//         marginBottom: 5,
+//         borderRadius: 8,
+//     },
+//     ctaButtonText: {
+//         fontSize: 18,
+//         fontWeight: 'bold',
+//         color: 'white',
+//     },
+//     removeProductButton: {
+//         backgroundColor: '#008959',
+//         justifyContent: 'center',
+//         alignItems: 'center',
+//         height: 50,
+//         marginHorizontal: 20,
+//         marginBottom: 5,
+//         borderRadius: 8,
+//     },
+//     cartTotalButton: {
+//         backgroundColor: '#54589A',
+//         justifyContent: 'center',
+//         alignItems: 'center',
+//         height: 50,
+//         marginBottom: 5,
+//         borderRadius: 8,
+//     },
+// });

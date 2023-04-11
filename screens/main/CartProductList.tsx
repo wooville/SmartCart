@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { ItemData, ProductData } from '../../utils/ProductListContext';
 import { ProductListContext } from '../../utils/ProductListContext';
-
+import { styles } from '../../styles/styles';
 const API_URL = 'http://smartcartbeanstalk-env.eba-3jmpa3xe.us-east-2.elasticbeanstalk.com/product';
 
 type ItemProps = { name: string, price: string, aisle: string, quantity: number };
@@ -71,54 +71,54 @@ export const CartProductList = () => {
     );
 };
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#f8fff8',
-    },
-    item: {
-        // position: 'absolute',
-        // bottom: 0,
-        flexDirection: 'column',
-        // justifyContent: 'space-between',
-        backgroundColor: '#00CC66',
-        padding: 20,
-        marginVertical: 8,
-        marginHorizontal: 16,
-        // height: 150,
-        // width: "90%",
-    },
-    name: {
-        fontSize: 20,
-    },
-    price: {
-        fontSize: 18,
-        flexDirection: 'column',
-        textAlign: 'right',
-        fontWeight: '700',
-    },
-    aisle: {
-        fontSize: 18,
-        flexDirection: 'column',
-        textAlign: 'right',
-    },
-    quantity: {
-        fontSize: 18,
-        flexDirection: 'column',
-        textAlign: 'right',
-    },
-    ctaButton: {
-        backgroundColor: '#54589A',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: 50,
-        marginHorizontal: 20,
-        marginBottom: 5,
-        borderRadius: 8,
-    },
-    ctaButtonText: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: 'white',
-    },
-});
+// const styles = StyleSheet.create({
+//     container: {
+//         flex: 1,
+//         backgroundColor: '#f8fff8',
+//     },
+//     item: {
+//         // position: 'absolute',
+//         // bottom: 0,
+//         flexDirection: 'column',
+//         // justifyContent: 'space-between',
+//         backgroundColor: '#00CC66',
+//         padding: 20,
+//         marginVertical: 8,
+//         marginHorizontal: 16,
+//         // height: 150,
+//         // width: "90%",
+//     },
+//     name: {
+//         fontSize: 20,
+//     },
+//     price: {
+//         fontSize: 18,
+//         flexDirection: 'column',
+//         textAlign: 'right',
+//         fontWeight: '700',
+//     },
+//     aisle: {
+//         fontSize: 18,
+//         flexDirection: 'column',
+//         textAlign: 'right',
+//     },
+//     quantity: {
+//         fontSize: 18,
+//         flexDirection: 'column',
+//         textAlign: 'right',
+//     },
+//     ctaButton: {
+//         backgroundColor: '#008959',
+//         justifyContent: 'center',
+//         alignItems: 'center',
+//         height: 50,
+//         marginHorizontal: 20,
+//         marginBottom: 5,
+//         borderRadius: 8,
+//     },
+//     ctaButtonText: {
+//         fontSize: 18,
+//         fontWeight: 'bold',
+//         color: 'white',
+//     },
+// });
