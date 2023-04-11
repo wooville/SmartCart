@@ -18,6 +18,7 @@ import { SwipeListView } from 'react-native-swipe-list-view';
 import { ProductListContext, ProductListProvider } from '../../utils/ProductListContext';
 import { CartProductList } from './CartProductList';
 import { RemoveProduct } from './RemoveProduct';
+import { ShoppingListDisplay } from '../ShoppingList/ShoppingListDisplay';
 
 const API_URL = 'http://smartcartbeanstalk-env.eba-3jmpa3xe.us-east-2.elasticbeanstalk.com/product/';
 
@@ -32,7 +33,8 @@ function MainScreen() {
       <ProductListProvider>
         <UseBLE />
         <View style={styles.container}>
-          <CartProductList />
+          {/* <CartProductList /> */}
+          <ShoppingListDisplay />
           <RemoveProduct />
         </View>
         <TouchableOpacity
