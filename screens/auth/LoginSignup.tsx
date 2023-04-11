@@ -12,7 +12,7 @@ import {
     Image,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { ItemData } from '../../utils/ProductListContext';
+import { ItemData, ProductListProvider } from '../../utils/ProductListContext';
 import { ProductListContext } from '../../utils/ProductListContext';
 import { RootStackParamList } from '../RootStackParams';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -29,11 +29,11 @@ export const LoginSignup = () => {
     const [password, setPassword] = useState('');
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [message, setMessage] = useState('');
-    const { userToken, setUserToken, setShoppingList } = useContext(ProductListContext);
+    const { userToken, setUserToken, setLocalShoppingList } = useContext(ProductListContext);
     const navigation = useNavigation<authScreenProp>();
 
     const getShoppingList = (token: any) => {
-        fetch(`${API_URL}/private`, {
+        fetch(`${API_URL}/list`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -43,10 +43,11 @@ export const LoginSignup = () => {
             .then(async res => {
                 try {
                     const jsonRes = await res.json();
-                    if (res.status === 200 && jsonRes.data) {
+                    // console.log(JSON.stringify(jsonRes.data));
 
-                        if (setShoppingList) setShoppingList(jsonRes.data);
-                        else console.log("no setShoppingList");
+                    if (res.status === 200 && jsonRes.data) {
+                        if (setLocalShoppingList) setLocalShoppingList(jsonRes.data);
+                        else console.log("no setLocalShoppingList");
                     }
                 } catch (err) {
                     console.log(err);
@@ -75,10 +76,11 @@ export const LoginSignup = () => {
                     if (res.status !== 200) {
                         setMessage(jsonRes.message);
                     } else {
+                        // console.log("token === " + jsonRes.token);
                         getShoppingList(jsonRes.token);
-                        navigation.navigate('Main');
                         if (setUserToken) setUserToken(jsonRes.token);
                         else console.log("no setUserToken");
+                        navigation.navigate('MainTabContainer', { token: jsonRes.token });
                     }
                 } catch (err) {
                     console.log(err);
@@ -131,7 +133,7 @@ export const LoginSignup = () => {
             <TextInput style={styles.button} placeholder="example@email.com" onChangeText={setEmail}></TextInput>
             <TextInput style={styles.button} secureTextEntry={true} placeholder="Password" onChangeText={setPassword}></TextInput>
 
-            <TouchableOpacity style={styles.nextbutton} onPress={login}>
+            <TouchableOpacity style={styles.nextbutton} onPress={() => login()}>
                 <Text style={styles.buttontext}> Login</Text>
 
             </TouchableOpacity>

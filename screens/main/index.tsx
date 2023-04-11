@@ -21,29 +21,31 @@ import { RemoveProduct } from './RemoveProduct';
 
 const API_URL = 'http://smartcartbeanstalk-env.eba-3jmpa3xe.us-east-2.elasticbeanstalk.com/product/';
 
-type mainScreenProp = StackNavigationProp<RootStackParamList, 'Main'>;
+// type mainScreenProp = StackNavigationProp<RootStackParamList, 'Main'>;
 type ItemProps = { name: string, price: string, aisle: string };
 
 function MainScreen() {
-  const navigation = useNavigation<mainScreenProp>();
+  // const navigation = useNavigation<mainScreenProp>();
+
 
   return (
     <SafeAreaView style={styles.container}>
-      <ProductListProvider>
-        <UseBLE />
-        <View style={styles.container}>
-          <CartProductList />
-          <RemoveProduct />
-        </View>
-        <TouchableOpacity
-          onPress={() => navigation.navigate("Search")}
-          style={styles.ctaButton}
-        >
-          <Text style={styles.ctaButtonText}>
-            {'Search'}
-          </Text>
-        </TouchableOpacity>
-      </ProductListProvider>
+      {/* <ProductListProvider> */}
+      <UseBLE />
+      <View style={styles.container}>
+        <RemoveProduct />
+
+        <CartProductList />
+      </View>
+      {/* <TouchableOpacity
+        onPress={() => navigation.navigate("Search")}
+        style={styles.ctaButton}
+      >
+        <Text style={styles.ctaButtonText}>
+          {'Search'}
+        </Text>
+      </TouchableOpacity> */}
+      {/* </ProductListProvider> */}
     </SafeAreaView >
   );
 }

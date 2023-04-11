@@ -15,9 +15,9 @@ function AuthScreen() {
 
       />
 
-      <ProductListProvider>
-        <LoginSignup />
-      </ProductListProvider>
+      {/* <ProductListProvider> */}
+      <LoginSignup />
+      {/* </ProductListProvider> */}
     </View>
   );
 }

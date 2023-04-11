@@ -34,8 +34,8 @@ const DeviceModalListItem: FC<DeviceModalListItemProps> = props => {
   return (
     <TouchableOpacity
       onPress={connectAndCloseModal}
-      style={modalStyle.ctaButton}>
-      <Text style={modalStyle.ctaButtonText}>{"Shopping Cart 1"}</Text>
+      style={modalStyle.searchButton}>
+      <Text style={modalStyle.searchButtonText}>{"Shopping Basket"}</Text>
     </TouchableOpacity>
   );
 };
@@ -104,9 +104,10 @@ const modalStyle = StyleSheet.create({
     fontWeight: 'bold',
     marginHorizontal: 20,
     textAlign: 'center',
+    color: 'black'
   },
-  ctaButton: {
-    backgroundColor: 'purple',
+  searchButton: {
+    backgroundColor: '#008959',
     justifyContent: 'center',
     alignItems: 'center',
     height: 50,
@@ -114,7 +115,7 @@ const modalStyle = StyleSheet.create({
     marginBottom: 5,
     borderRadius: 8,
   },
-  ctaButtonText: {
+  searchButtonText: {
     fontSize: 18,
     fontWeight: 'bold',
     color: 'white',

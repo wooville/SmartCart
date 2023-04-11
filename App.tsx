@@ -8,25 +8,77 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import MainScreen from './screens/main';
 import AuthScreen from './screens/auth';
 import SearchScreen from './screens/search';
-
+import ShoppingListScreen from './screens/shoppingList';
 import { RootStackParamList } from './screens/RootStackParams';
+import { ProductListContext, ProductListProvider } from './utils/ProductListContext';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { StackNavigationProp } from '@react-navigation/stack';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
+const Tab = createBottomTabNavigator();
+
+type MainTabContainerProps = StackNavigationProp<RootStackParamList, 'MainTabContainer'>;
+
+const MainTabContainer = () => {
+  const route = useRoute<RouteProp<RootStackParamList, 'MainTabContainer'>>();
+  // const provider = route.params.provider;
+
+
+  return (
+    // <NavigationContainer>
+    // <ProductListProvider>
+
+    <Tab.Navigator screenOptions={({ route }) => ({
+      tabBarIcon: ({ focused, color, size }) => {
+        let iconName;
+
+        if (route.name === 'Cart') {
+          iconName = focused ? 'cart' : 'cart-outline';
+        } else if (route.name === 'Shopping List') {
+          iconName = focused ? 'list' : 'list-outline';
+        } else if (route.name === 'Search') {
+          iconName = focused ? 'search' : 'search-outline';
+        } else {
+          iconName = 'musical-note'
+        }
+
+        // You can return any component that you like here!
+        return <Ionicons name={iconName} size={size} color={color} />;
+      },
+      tabBarActiveTintColor: 'tomato',
+      tabBarInactiveTintColor: 'gray',
+      headerShown: false,
+    })}>
+      <Tab.Screen name="Cart" component={MainScreen} />
+      <Tab.Screen name="Shopping List" component={ShoppingListScreen} />
+      <Tab.Screen name="Search" component={SearchScreen} />
+    </Tab.Navigator>
+    // </ProductListProvider>
+
+    // </NavigationContainer>
+  );
+};
+
 const App = () => {
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="Auth" component={AuthScreen} />
-        <Stack.Screen name="Main" component={MainScreen} />
-        <Stack.Screen name="Search" component={SearchScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <ProductListProvider>
+      <NavigationContainer >
+        <Stack.Navigator screenOptions={{
+          headerShown: false
+        }}>
+          <Stack.Screen name="Auth" component={AuthScreen} />
+          <Stack.Screen name="MainTabContainer" component={MainTabContainer} />
+          {/* <Stack.Screen name="Search" component={SearchScreen} /> */}
+        </Stack.Navigator>
+      </NavigationContainer>
+    </ProductListProvider>
   );
 };
 

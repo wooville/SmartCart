@@ -20,9 +20,9 @@ import { SearchShop } from './SearchShop';
 function SearchScreen() {
   return (
     <SafeAreaView style={styles.container}>
-      <ProductListProvider>
-        <SearchShop />
-      </ProductListProvider>
+      {/* <ProductListProvider> */}
+      <SearchShop />
+      {/* </ProductListProvider> */}
 
       <FlashMessage position="top" />
     </SafeAreaView>

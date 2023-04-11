@@ -12,7 +12,7 @@ import DeviceInfo from 'react-native-device-info';
 // import { productContext, ProductListProvider } from './utils/ProductListProvider';
 import { ProductListContext } from '../../utils/ProductListContext';
 import DeviceModal from '../../DeviceConnectionModal';
-import { ItemData } from '../../utils/ProductListContext';
+import { ItemData, ProductData } from '../../utils/ProductListContext';
 
 import { atob } from 'react-native-quick-base64';
 
@@ -25,16 +25,16 @@ type VoidCallback = (result: boolean) => void;
 const BLE_DEVICE_UUID = '0000FFE0-0000-1000-8000-00805F9B34FB';
 const BLE_DEVICE_CHARACTERISTIC = '0000FFE1-0000-1000-8000-00805F9B34FB';
 
-interface ProductData {
-    id: number
-    name: string
-    price: number
-    aisle: string
-    tags: string
-    imgurl: string
-    createdAt: string
-    updatedAt: string
-};
+// interface ProductData {
+//     id: number
+//     name: string
+//     price: number
+//     aisle: string
+//     tags: string
+//     imgurl: string
+//     createdAt: string
+//     updatedAt: string
+// };
 
 export const UseBLE = () => {
     // const cartListInterface = useContext(productContext);
@@ -186,7 +186,7 @@ export const UseBLE = () => {
 
                         // if uid is not already in list and there is a new product / server response
                         if (!cartList.some(e => e.uid === uid) && newProduct != null) {
-                            let scannedItem: ItemData = { uid: uid, refid: refid, name: newProduct.name, price: newProduct.price.toString(), aisle: newProduct.aisle };
+                            let scannedItem: ItemData = { uid: uid, refid: refid, name: newProduct.name, price: newProduct.price.toString(), aisle: newProduct.aisle, imgurl: newProduct.imgurl };
 
                             // check if we are scanning to add or remove items
                             if (!isScanToRemoveRef.current) {
@@ -225,33 +225,31 @@ export const UseBLE = () => {
 
         console.log(uid + "\n" + refid);
 
-        // const newProduct = allProductListRef.current.find(item => item.id === refid.toString());
-        // console.log(newProduct)
+        const newProduct = allProductListRef.current.find(item => item.id == refid.toString());
+        console.log(newProduct)
 
-        // if (!cartList.some(e => e.uid === uid) && newProduct) {
-        //     let scannedItem: ItemData = { uid: uid, refid: refid.toString(), name: newProduct.name, price: newProduct.price.toString(), aisle: newProduct.aisle };
+        if (!cartList.some(e => e.uid === uid) && newProduct) {
+            let scannedItem: ItemData = { uid: uid, refid: refid.toString(), name: newProduct.name, price: newProduct.price.toString(), aisle: newProduct.aisle, imgurl: newProduct.imgurl };
 
-        //     // check if we are scanning to add or remove items
-        //     if (!isScanToRemoveRef.current) {
-        //         if (addToCart) addToCart(scannedItem);
-        //         else console.log("no addToCart");
-        //     }
-        //     if (isScanToRemoveRef.current) {
-        //         if (addToRemoveList) addToRemoveList(scannedItem);
-        //         else console.log("no addToRemoveList");
-        //     }
-        // }
+            // check if we are scanning to add or remove items
+            if (!isScanToRemoveRef.current) {
+                if (addToCart) addToCart(scannedItem);
+                else console.log("no addToCart");
+            }
+            if (isScanToRemoveRef.current) {
+                if (addToRemoveList) addToRemoveList(scannedItem);
+                else console.log("no addToRemoveList");
+            }
+        }
 
-        getProduct(refid, uid);
+        // getProduct(refid, uid);
     };
-
-
 
     return (
         <>
             <TouchableOpacity
                 onPress={connectedDevice ? disconnectFromDevice : openDeviceModal}
-                style={styles.ctaButton}>
+                style={styles.button}>
                 <Text style={styles.ctaButtonText}>
                     {connectedDevice ? 'Disconnect' : 'Connect'}
                 </Text>
@@ -269,7 +267,7 @@ export const UseBLE = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f8fff8',
+        backgroundColor: 'white',
     },
     item: {
         // position: 'absolute',
@@ -297,18 +295,18 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         textAlign: 'right',
     },
-    ctaButton: {
-        backgroundColor: '#54589A',
+    button: {
+        backgroundColor: '#008959',
         justifyContent: 'center',
-        alignItems: 'center',
-        height: 50,
-        marginHorizontal: 20,
-        marginBottom: 5,
-        borderRadius: 8,
+        marginHorizontal: '1%',
+        marginBottom: 6,
+        paddingHorizontal: 8,
+        paddingVertical: 6,
     },
     ctaButtonText: {
         fontSize: 18,
         fontWeight: 'bold',
         color: 'white',
+        textAlign: 'center'
     },
 });

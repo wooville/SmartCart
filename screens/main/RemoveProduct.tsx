@@ -30,7 +30,7 @@ export const RemoveProduct = () => {
             if (displayItem != undefined) {
                 displayItem.quantity = displayItem.quantity + 1;
             } else {
-                const newItem = { refid: value.refid, name: value.name, price: value.price, aisle: value.aisle, quantity: 1 }
+                const newItem = { refid: value.refid, name: value.name, price: value.price, aisle: value.aisle, quantity: 1, imgurl: value.imgurl }
                 newDisplayList.push(newItem);
             }
         }
@@ -75,30 +75,28 @@ export const RemoveProduct = () => {
                 // transparent={true}
                 visible={isProductRemoveModalVisible}
                 onRequestClose={closeProductRemoveModal}>
-                <View style={styles.BLEDeviceTitleWrapper}>
-                    <Text style={styles.BLEDeviceTitleText}>{"Please scan the items you wish to remove:"}</Text>
-                </View>
+                <Text style={styles.modalTitleText}>{"Please scan the items you wish to remove:"}</Text>
 
                 <FlatList
                     data={displayList}
-                    renderItem={({ item }) => <Item name={item.name} price={item.price} aisle={item.aisle} quantity={item.quantity} />}
+                    renderItem={({ item }) => <Item name={item.name} price={item.price} aisle={item.aisle} quantity={item.quantity} imgurl={item.imgurl} />}
                     keyExtractor={item => item.refid}
                 />
 
                 <TouchableOpacity
                     onPress={confirmProductRemoveModal}
-                    style={styles.ctaButton}
+                    style={styles.searchButton}
                 >
-                    <Text style={styles.ctaButtonText}>
+                    <Text style={styles.searchButtonText}>
                         {'Confirm Removal'}
                     </Text>
                 </TouchableOpacity>
             </Modal>
             <TouchableOpacity
                 onPress={openProductRemoveModal}
-                style={styles.ctaButton}
+                style={styles.searchButton}
             >
-                <Text style={styles.ctaButtonText}>
+                <Text style={styles.searchButtonText}>
                     {'Remove Items'}
                 </Text>
             </TouchableOpacity>
@@ -109,72 +107,45 @@ export const RemoveProduct = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f8fff8',
+        backgroundColor: 'white',
     },
-    // switchContainer: {
-    //   flexDirection: 'row',
-    //   justifyContent: 'center',
-    //   marginVertical: 50,
-    //   flexWrap: 'wrap',
-    // },
-    // switch: {
-    //   alignItems: 'center',
-    //   borderWidth: 1,
-    //   borderColor: 'black',
-    //   marginVertical: 2,
-    //   paddingVertical: 10,
-    //   width: Dimensions.get('window').width / 3,
-    // },
+    modalTitleText: {
+        marginTop: 40,
+        fontSize: 30,
+        fontWeight: 'bold',
+        marginHorizontal: 20,
+        textAlign: 'center',
+        color: 'black'
+    },
     item: {
         // position: 'absolute',
         // bottom: 0,
         flexDirection: 'column',
         // justifyContent: 'space-between',
-        backgroundColor: '#00CC66',
+        backgroundColor: '#F1FCF6',
         padding: 20,
         marginVertical: 8,
         marginHorizontal: 16,
         // height: 150,
         // width: "90%",
     },
-    rowBack: {
-        backgroundColor: '#eb4034',
-        padding: 20,
-        marginVertical: 8,
-        marginHorizontal: 16,
-    },
     name: {
         fontSize: 20,
+        color: 'black',
     },
     price: {
         fontSize: 18,
-        flexDirection: 'column',
         textAlign: 'right',
         fontWeight: '700',
+        color: 'black',
     },
     aisle: {
         fontSize: 18,
-        flexDirection: 'column',
         textAlign: 'right',
-    },
-    BLEDeviceTitleWrapper: {
-        flex: 1,
-        // justifyContent: 'center',
-        alignItems: 'center',
-    },
-    BLEDeviceTitleText: {
-        fontSize: 30,
-        fontWeight: 'bold',
-        textAlign: 'center',
-        marginHorizontal: 20,
         color: 'black',
     },
-    BLEDeviceText: {
-        fontSize: 25,
-        marginTop: 15,
-    },
-    ctaButton: {
-        backgroundColor: '#54589A',
+    searchButton: {
+        backgroundColor: 'darkorange',
         justifyContent: 'center',
         alignItems: 'center',
         height: 50,
@@ -182,26 +153,45 @@ const styles = StyleSheet.create({
         marginBottom: 5,
         borderRadius: 8,
     },
-    ctaButtonText: {
+    searchButtonText: {
         fontSize: 18,
         fontWeight: 'bold',
         color: 'white',
     },
-    removeProductButton: {
-        backgroundColor: '#54589A',
+    cartTotalButton: {
+        backgroundColor: '#008959',
         justifyContent: 'center',
         alignItems: 'center',
         height: 50,
-        marginHorizontal: 20,
         marginBottom: 5,
         borderRadius: 8,
     },
-    cartTotalButton: {
-        backgroundColor: '#54589A',
+    input: {
+        color: 'black',
+        height: 40,
+        margin: 12,
+        borderWidth: 1,
+        padding: 10,
+    },
+    button: {
+        backgroundColor: '#008959',
         justifyContent: 'center',
-        alignItems: 'center',
-        height: 50,
-        marginBottom: 5,
-        borderRadius: 8,
+        alignItems: 'flex-start',
+        height: 30,
+        width: 90,
+        marginHorizontal: '1%',
+        marginBottom: 6,
+        paddingHorizontal: 8,
+        paddingVertical: 6,
+    },
+    buttonText: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        color: 'white',
+    },
+    quantity: {
+        fontSize: 18,
+        flexDirection: 'column',
+        textAlign: 'right',
     },
 });

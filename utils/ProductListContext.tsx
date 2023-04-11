@@ -1,7 +1,7 @@
 import { createContext, FC, useState, useRef, useEffect } from 'react';
 
-export type ItemData = { uid: string, refid: string, name: string, price: string, aisle: string };
-export type ProductData = { id: string, name: string, price: string, aisle: string, tags: string };
+export type ItemData = { uid: string, refid: string, name: string, price: string, aisle: string, imgurl: string };
+export type ProductData = { id: string, name: string, price: string, aisle: string, tags: string, imgurl: string };
 
 export const PRODUCT_API_URL = 'http://smartcartbeanstalk-env.eba-3jmpa3xe.us-east-2.elasticbeanstalk.com/product';
 export const AUTH_API_URL = 'http://smartcartbeanstalk-env.eba-3jmpa3xe.us-east-2.elasticbeanstalk.com/auth';
@@ -17,9 +17,9 @@ interface IProductContext {
     addToCart?: (item: ItemData) => void;
     addToRemoveList?: (item: ItemData) => void;
     addToShoppingList?: (item: ProductData) => void;
-    setShoppingList?: (items: ProductData[]) => void;
+    setLocalShoppingList?: (list: string) => void;
     removeListFromCart?: () => void;
-    removeFromShoppingList?: (item: ProductData) => void;
+    removeFromShoppingList?: (is: string) => void;
     setIsScanToRemove?: (bool: boolean) => void;
     setUserToken?: (token: string) => void;
     clearCartList?: () => void;
@@ -33,7 +33,7 @@ const defaultState = {
     removeList: [],
     shoppingList: [],
     isScanToRemove: false,
-    userToken: "",
+    userToken: "noToken",
 };
 
 // const [cartList, setCartList] = useState<ItemData[]>([]);
@@ -55,21 +55,52 @@ const ProductListProvider: FC<Props> = ({ children }) => {
     const [userToken, setUserToken] = useState<string>(defaultState.userToken);
 
     // use refs and useEffect to circumvent stale closure (ie always ensure up to date states)
-    const userTokenRef = useRef(userToken)
-    const cartListRef = useRef(cartList)
-    const removeListRef = useRef(removeList)
-    const shoppingListRef = useRef(shoppingList)
+    const userTokenRef = useRef(userToken);
+    const cartListRef = useRef(cartList);
+    const removeListRef = useRef(removeList);
+    const shoppingListRef = useRef(shoppingList);
 
     useEffect(() => {
-        userTokenRef.current = userToken;
         cartListRef.current = cartList;
         removeListRef.current = removeList;
         shoppingListRef.current = shoppingList;
-    }, [cartList, removeList, shoppingList, userToken])
+    }, [cartList, removeList, shoppingList,])
+
+    useEffect(() => {
+        userTokenRef.current = userToken;
+        getShoppingList(userToken);
+        console.log("effect " + userToken);
+    }, [userToken])
 
     useEffect(() => {
         getAllProducts()
     }, [])
+
+    const getShoppingList = (token: any) => {
+        fetch(`${AUTH_API_URL}/list`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+            },
+        })
+            .then(async res => {
+                try {
+                    const jsonRes = await res.json();
+                    // console.log(JSON.stringify(jsonRes.data));
+
+                    if (res.status === 200 && jsonRes.data) {
+                        if (setLocalShoppingList) setLocalShoppingList(jsonRes.data);
+                        else console.log("no setLocalShoppingList");
+                    }
+                } catch (err) {
+                    console.log(err);
+                };
+            })
+            .catch(err => {
+                console.log(err);
+            });
+    }
 
     const getAllProducts = () => {
         fetch(`${PRODUCT_API_URL}/`, {
@@ -109,28 +140,51 @@ const ProductListProvider: FC<Props> = ({ children }) => {
         }
     }
 
+    const setLocalShoppingList = (list: string) => {
+        let newList: ProductData[] = [];
+        let eachItem;
+
+        const splitList = list.split(",");
+        for (var id of splitList) {
+            eachItem = allProductList.find(item => item.id == id);
+            if (eachItem) newList.push();
+        }
+
+        setShoppingList(newList);
+        console.log(shoppingListRef.current);
+
+        updateRemoteShoppingList();
+    }
+
     const addToShoppingList = (item: ProductData) => {
+        if (item == undefined) return;
+
         setShoppingList(prev => {
             return [...prev, item];
         });
+        console.log(shoppingListRef.current);
 
         updateRemoteShoppingList();
     }
 
-    const removeFromShoppingList = (item: ProductData) => {
-        const index = shoppingListRef.current.indexOf(item, 0);
-        if (index > -1) {
-            shoppingListRef.current.splice(index, 1);
-        }
+    const removeFromShoppingList = (id: string) => {
+        const item2remove = shoppingListRef.current.find(item => item.id == id);
+        if (item2remove) {
+            const index = shoppingListRef.current.indexOf(item2remove, 0);
+            if (index > -1) {
+                shoppingListRef.current.splice(index, 1);
+            }
 
-        updateRemoteShoppingList();
+            updateRemoteShoppingList();
+        }
     }
 
     const updateRemoteShoppingList = () => {
-        let shoppingListStr = ""
+        let shoppingListStr = "";
         for (var item of shoppingListRef.current) {
-            shoppingListStr += item.id + ","
+            shoppingListStr += item.id + ",";
         }
+        // console.log(userTokenRef.current);
         console.log(JSON.stringify({ shoppingList: shoppingListStr }))
 
         fetch(`${AUTH_API_URL}/list`, {
@@ -193,7 +247,7 @@ const ProductListProvider: FC<Props> = ({ children }) => {
     }
 
     return (
-        <ProductListContext.Provider value={{ allProductList: allProductList, cartList: cartList, removeList: removeList, shoppingList: shoppingList, isScanToRemove: isScanToRemove, userToken: userToken, setUserToken: setUserToken, setAllProductList: setAllProductList, setIsScanToRemove: setIsScanToRemove, addToCart: addToCart, addToRemoveList: addToRemoveList, addToShoppingList: addToShoppingList, setShoppingList: setShoppingList, removeListFromCart: removeListFromCart, removeFromShoppingList: removeFromShoppingList, clearCartList: clearCartList, clearRemoveList: clearRemoveList, clearShoppingList: clearShoppingList }}>
+        <ProductListContext.Provider value={{ allProductList: allProductList, cartList: cartList, removeList: removeList, shoppingList: shoppingList, isScanToRemove: isScanToRemove, userToken: userToken, setUserToken: setUserToken, setAllProductList: setAllProductList, setIsScanToRemove: setIsScanToRemove, addToCart: addToCart, addToRemoveList: addToRemoveList, addToShoppingList: addToShoppingList, setLocalShoppingList: setLocalShoppingList, removeListFromCart: removeListFromCart, removeFromShoppingList: removeFromShoppingList, clearCartList: clearCartList, clearRemoveList: clearRemoveList, clearShoppingList: clearShoppingList }}>
             {children}
         </ProductListContext.Provider>
     );

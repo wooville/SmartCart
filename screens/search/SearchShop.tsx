@@ -12,13 +12,12 @@ import {
 import { ProductListContext } from '../../utils/ProductListContext';
 import { showMessage, hideMessage } from "react-native-flash-message";
 import { ItemData, ProductData } from '../../utils/ProductListContext';
-
-const API_URL = 'http://smartcartbeanstalk-env.eba-3jmpa3xe.us-east-2.elasticbeanstalk.com/product';
+import { BackHandler } from 'react-native';
 
 type ItemProps = { id: string, name: string, price: string, aisle: string };
 
 export const SearchShop = () => {
-  const { userToken, allProductList, setAllProductList, shoppingList, addToShoppingList } = useContext(ProductListContext);
+  const { userToken, allProductList, setAllProductList, shoppingList, addToShoppingList, setLocalShoppingList } = useContext(ProductListContext);
   const [productList, setProductList] = useState<ProductData[]>([]);
 
   const allProductListRef = useRef(allProductList);
@@ -53,15 +52,27 @@ export const SearchShop = () => {
 
   const updateShoppingList = (id: string) => {
     const item2add = productList.find(item => item.id == id);
+    console.log("item " + item2add?.id);
 
+    // let shoppingListStr = "";
+    // for (var item of shoppingListRef.current) {
+    //   shoppingListStr += item.id + ",";
+    // }
+    // shoppingListStr += id;
+
+    // console.log(shoppingListStr)
     if (item2add) {
       if (addToShoppingList) {
+        // const item2add = productList.find(item => item.id == id);
+
         addToShoppingList(item2add);
+        // // if (setLocalShoppingList) setLocalShoppingList(shoppingListStr);
+        // else console.log("no setLocalShoppingList");
+
         showMessage({
-          message: item2add.name + ' added to shopping list',
+          message: item2add?.name + ' added to shopping list',
           type: 'success',
         });
-        console.log(shoppingListRef.current);
       }
     }
     else {
@@ -78,7 +89,7 @@ export const SearchShop = () => {
 
     let displayList: ProductData[] = [];
     for (var product of allProductListRef.current) {
-      let newItem: ProductData = { id: product.id.toString(), name: product.name, price: product.price.toString(), aisle: product.aisle, tags: product.tags };
+      let newItem: ProductData = { id: product.id.toString(), name: product.name, price: product.price.toString(), aisle: product.aisle, tags: product.tags, imgurl: product.imgurl };
 
       displayList.push(newItem);
     }
@@ -102,8 +113,8 @@ export const SearchShop = () => {
       />
       <TouchableOpacity
         onPress={filterProducts}
-        style={styles.ctaButton}>
-        <Text style={styles.ctaButtonText}>
+        style={styles.searchButton}>
+        <Text style={styles.searchButtonText}>
           {'Search'}
         </Text>
       </TouchableOpacity>
@@ -157,23 +168,7 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     color: 'black',
   },
-  BLEDeviceTitleWrapper: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  BLEDeviceTitleText: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginHorizontal: 20,
-    color: 'black',
-  },
-  BLEDeviceText: {
-    fontSize: 25,
-    marginTop: 15,
-  },
-  ctaButton: {
+  searchButton: {
     backgroundColor: '#008959',
     justifyContent: 'center',
     alignItems: 'center',
@@ -182,7 +177,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     borderRadius: 8,
   },
-  ctaButtonText: {
+  searchButtonText: {
     fontSize: 18,
     fontWeight: 'bold',
     color: 'white',

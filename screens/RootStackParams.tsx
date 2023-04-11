@@ -1,6 +1,5 @@
 export type RootStackParamList = {
-    Main: undefined;
+    MainTabContainer: { token: string };
     Auth: undefined;
-    Test: undefined;
-    Search: undefined;
+    // Search: undefined;
 };
