@@ -130,8 +130,8 @@ export const LoginSignup = () => {
 
     return (
         <>
-            <TextInput style={styles.button} placeholder="example@email.com" onChangeText={setEmail}></TextInput>
-            <TextInput style={styles.button} secureTextEntry={true} placeholder="Password" onChangeText={setPassword}></TextInput>
+            <TextInput style={styles.textinput} placeholder="example@email.com" onChangeText={setEmail}></TextInput>
+            <TextInput style={styles.textinput} secureTextEntry={true} placeholder="Password" onChangeText={setPassword}></TextInput>
 
             <TouchableOpacity style={styles.nextbutton} onPress={() => login()}>
                 <Text style={styles.buttontext}> Login</Text>
@@ -146,9 +146,9 @@ export const LoginSignup = () => {
                         style={styles.logo}
                         source={require('../../assets/SmartCart_font.png')}
                     />
-                    <TextInput style={styles.button} placeholder="Name" onChangeText={setName}></TextInput>
-                    <TextInput style={styles.button} placeholder="example@email.com" onChangeText={setEmail}></TextInput>
-                    <TextInput style={styles.button} secureTextEntry={true} placeholder="Password" onChangeText={setPassword}></TextInput>
+                    <TextInput style={styles.textinput} placeholder="Name" onChangeText={setName}></TextInput>
+                    <TextInput style={styles.textinput} placeholder="example@email.com" onChangeText={setEmail}></TextInput>
+                    <TextInput style={styles.textinput} secureTextEntry={true} placeholder="Password" onChangeText={setPassword}></TextInput>
                     <Text >{message}</Text>
 
                     <TouchableOpacity style={styles.nextbutton} onPress={SignUp}>
@@ -178,6 +178,16 @@ const styles = StyleSheet.create({
         height: 45,
         borderRadius: 50,
         marginVertical: 10,
+    },
+    textinput: {
+        width: '75%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'white',
+        height: 45,
+        borderRadius: 50,
+        marginVertical: 10,
+        color: 'black'
     },
     separator: {
         marginVertical: 5,

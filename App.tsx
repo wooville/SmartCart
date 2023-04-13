@@ -30,7 +30,6 @@ const MainTabContainer = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'MainTabContainer'>>();
   // const provider = route.params.provider;
 
-
   return (
     // <NavigationContainer>
     // <ProductListProvider>
