@@ -1,5 +1,7 @@
 Bringing the convenience of online shopping to the store! A full-stack mobile application that allows users to connect to the SmartCart device via Bluetooth for real-time feedback on the items in their cart. 
 
+https://www.youtube.com/watch?v=UuqbKL85K5Y
+
 ![MicrosoftTeams-image](https://user-images.githubusercontent.com/47064476/232907615-b2651753-ee99-401a-a7fd-856492fdc642.png)
 ![MicrosoftTeams-image (7)](https://user-images.githubusercontent.com/47064476/232907619-4363119b-a75a-4db0-b4cb-fd6180a76188.png)
 ![MicrosoftTeams-image (6)](https://user-images.githubusercontent.com/47064476/232907622-6158899d-5aec-4393-892f-549ae2e16135.png)
